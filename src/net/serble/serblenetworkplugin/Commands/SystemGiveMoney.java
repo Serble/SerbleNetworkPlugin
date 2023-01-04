@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin.Commands;
 
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.serble.serblenetworkplugin.Functions;
@@ -50,15 +51,20 @@ public class SystemGiveMoney implements CommandExecutor {
 
         Main.sqlData.addMoney(p.getUniqueId(), amount);
 
-        TextComponent message = new TextComponent("+ " + amount + " coins (" + reason + ")");
-        message.setColor(ChatColor.GOLD.asBungee());
+//        TextComponent message = new TextComponent("+ " + amount + " coins (" + reason + ")");
+//        message.setColor(ChatColor.GOLD.asBungee());
 
+        // Message in chat
         p.sendMessage(Functions.translate("&6+ " + amount + " coins (" + reason + ")"));
+
+        // Action bar message
         BaseComponent[] message2 = {
                 new TextComponent("+ " + amount + " coins (" + reason + ")"),
         };
         message2[0].setColor(ChatColor.GOLD.asBungee());
-        p.spigot().sendMessage(/*ChatMessageType.ACTION_BAR, */message2);
+        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, message2);
+
+        // Sound
         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2, 1);
 
         if (sender instanceof Player) {

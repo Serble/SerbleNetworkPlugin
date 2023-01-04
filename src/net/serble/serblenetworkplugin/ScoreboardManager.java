@@ -72,8 +72,8 @@ public class ScoreboardManager implements Listener {
                 break;
             }
         }
-        String text = String.format("<<< Inferon - %s >>>", worldName);
-        Objective obj = main.registerNewObjective(/*"lobbyboard", */"dummy", ChatColor.BLUE + text);
+        String text = String.format("<<< Serble - %s >>>", worldName);
+        Objective obj = main.registerNewObjective("lobbyboard", "dummy", ChatColor.BLUE + text);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         // line
