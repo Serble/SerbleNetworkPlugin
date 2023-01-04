@@ -1,0 +1,45 @@
+# Everytime someone joins they will be teleported to this world
+mainlobby: world
+
+# Would you like to disable scoreboards in named worlds?
+disablescoreboard: false
+
+# If this is true people will not be teleported to the main lobby on join
+disabletp: false
+
+# Define worlds that you would like to set a name for
+worlds:
+  - world
+  - pvpworld
+
+# The name of the world in the same order of worlds
+worldnames:
+  - Lobby
+  - PVP
+
+# If the world isn't listed what world do you want the server to say they are in
+unknownworld: Admin Land
+
+# People will get menu items in these worlds, and they won't lose hunger/health
+lobbys:
+  - world
+  - skywarslobby
+
+# worlds that are lobbys but require people being able to die
+allowdeathlobbys:
+  - parkour
+
+# worlds that are lobbys but need people to not fly
+noflylobbys:
+  - parkour
+
+# Worlds that don't need scoreboards
+noscoreboardlobbys:
+  - parkour
+
+# MySQL Stuff
+serverurl: mysql.serble.net
+serverport: 3306
+database: serblenetworkplugin
+user: admin
+password: averysecurepassword123

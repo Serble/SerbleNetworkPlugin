@@ -1,0 +1,25 @@
+name: SerbleNetworkPlugin
+main: net.serble.serblenetworkplugin.Main
+version: 1.0
+api-version: 1.13
+
+commands:
+  menu:
+  lob:
+  hub:
+  lobby:
+  adminmode:
+  spawn:
+  cosmetic:
+  ranknick:
+  nick:
+  unnick:
+  build:
+  reloadconfig:
+  money:
+  store:
+  shop:
+  sysgivemoney:
+  play:
+  goto:
+  chatsudo:
