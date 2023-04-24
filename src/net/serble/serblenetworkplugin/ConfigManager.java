@@ -5,6 +5,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import net.serble.serblenetworkplugin.Schemas.ConfigSave;
+import net.serble.serblenetworkplugin.Schemas.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
@@ -34,7 +35,10 @@ public class ConfigManager implements PluginMessageListener {
             Gson json = new Gson();
             Main.config = json.fromJson(config, ConfigSave.class);
             Main.hasConfig = true;
-            Main.plugin.getLogger().info("Obtained bungee config!");
+            Main.plugin.getLogger().info("Obtained bungee config! ChatFormat: " + Main.config.ChatFormat);
+            for (GameMode mode : Main.config.GameModes) {
+                Main.plugin.getLogger().info("Discovered GameMode: " + mode.Name);
+            }
         }
     }
 
