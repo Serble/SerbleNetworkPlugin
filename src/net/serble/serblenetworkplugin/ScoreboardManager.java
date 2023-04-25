@@ -10,6 +10,8 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 
+import java.util.Objects;
+
 
 public class ScoreboardManager implements Listener {
     private int taskID;
@@ -43,7 +45,7 @@ public class ScoreboardManager implements Listener {
                         if (!Main.plugin.getConfig().getStringList("worlds").contains(player.getWorld().getName()) ||
                                 Main.plugin.getConfig().getStringList("noscoreboardlobbys").contains(player.getWorld().getName())) {
                             if (!hasDeletedSSB) {
-                                player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+                                player.setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
                                 hasDeletedSSB = true;
                             }
                             return;
@@ -92,21 +94,27 @@ public class ScoreboardManager implements Listener {
         Score money = obj.getScore(ChatColor.YELLOW + "Money: " + Main.sqlData.getMoney(player.getUniqueId()));
         money.setScore(6);
 
+        // exp
+        int level = ExperienceManager.getLevel(player);
+        int progress = ExperienceManager.getXp(player) - level * 1000;
+        Score exp = obj.getScore(ChatColor.YELLOW + "Level: " + level + " (" + progress + "/1000)");
+        exp.setScore(5);
+
         // tps
-        Score tps = obj.getScore(ChatColor.YELLOW + "TPS: " + (int) Lag.getTPS());
-        tps.setScore(5);
+        Score tps = obj.getScore(ChatColor.YELLOW + "TPS: " + Math.round(Lag.getTPS()));
+        tps.setScore(4);
 
         // discord
         Score discord = obj.getScore(ChatColor.YELLOW + "Discord: https://discord.serble.net.");
-        discord.setScore(4);
+        discord.setScore(3);
 
         // line 2
         Score line2 = obj.getScore(ChatColor.BLACK + "========================");
-        line2.setScore(3);
+        line2.setScore(2);
 
         // ip
         Score ip = obj.getScore(ChatColor.BLUE + "mc.serble.net");
-        ip.setScore(2);
+        ip.setScore(1);
 
         // done
         player.setScoreboard(main);

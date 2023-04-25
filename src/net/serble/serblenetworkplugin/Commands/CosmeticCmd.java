@@ -9,6 +9,7 @@ public class CosmeticCmd implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
         Bukkit.dispatchCommand(sender, "uc menu main");
         return true;
     }

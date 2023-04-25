@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -73,6 +74,14 @@ public class MenuItemManager implements Listener {
         for (int i = 0; i < items.size(); i++) {
             p.getInventory().setItem(slots.get(i), items.get(i));
         }
+
+        // Set XP bar to the person's experience level
+        ExperienceManager.setPlayerExperience(p);
+    }
+
+    public static boolean shouldNotGetItems(Player p) {
+        if (!Main.plugin.getConfig().getStringList("lobbys").contains(p.getWorld().getName())) return true;
+        return Main.sqlData.getAdminMode(p.getUniqueId());
     }
 
     @EventHandler
@@ -85,10 +94,7 @@ public class MenuItemManager implements Listener {
             p.teleport(lobby.getSpawnLocation());
         }
 
-        if (!Main.plugin.getConfig().getStringList("lobbys").contains(p.getWorld().getName())) return;
-
-        if (Main.sqlData.getAdminMode(p.getUniqueId())) return;
-
+        if (shouldNotGetItems(p)) return;
         GiveMenuItems(p);
 
         if (!Main.plugin.getConfig().getStringList("noflylobbys").contains(p.getWorld().getName())) {
@@ -102,11 +108,7 @@ public class MenuItemManager implements Listener {
     public void onWorldChange(PlayerChangedWorldEvent e) {
         Player p = e.getPlayer();
 
-        if (Main.sqlData.getAdminMode(p.getUniqueId())) return;
-
-        List<String> lobbys = Main.plugin.getConfig().getStringList("lobbys");
-        if (!lobbys.contains(p.getWorld().getName())) return;
-
+        if (shouldNotGetItems(p)) return;
         GiveMenuItems(p);
 
         if (!Main.plugin.getConfig().getStringList("noflylobbys").contains(p.getWorld().getName())) {
@@ -123,8 +125,6 @@ public class MenuItemManager implements Listener {
             e.setCancelled(true);
             return;
         }
-
-        Player p = e.getPlayer();
 
         ItemStack item = e.getItem();
         if (item == null) return;
@@ -147,6 +147,7 @@ public class MenuItemManager implements Listener {
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
         if (Main.sqlData.getAdminMode(e.getWhoClicked().getUniqueId())) return;
+        if (e.getClickedInventory() != null && e.getClickedInventory().getType() != InventoryType.PLAYER) return;
         if (Main.plugin.getConfig().getStringList("lobbys").contains(e.getWhoClicked().getWorld().getName())) {
             e.setCancelled(true);
         }

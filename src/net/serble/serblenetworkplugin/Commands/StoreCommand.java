@@ -1,5 +1,7 @@
 package net.serble.serblenetworkplugin.Commands;
 
+import net.serble.serblenetworkplugin.AchievementsManager;
+import net.serble.serblenetworkplugin.Schemas.Achievement;
 import net.serble.serblenetworkplugin.Schemas.StoreItem;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
@@ -39,6 +41,7 @@ public class StoreCommand implements CommandExecutor, Listener {
             Integer slot = storeItem.Slot;
             Integer price = storeItem.Cost;
 
+            assert material != null;
             ItemStack stack = new ItemStack(material, 1);
             ItemMeta meta = stack.getItemMeta();
 
@@ -53,6 +56,7 @@ public class StoreCommand implements CommandExecutor, Listener {
         }
 
         p.openInventory(Store);
+        AchievementsManager.GrantAchievementProgress(p, Achievement.GO_SHOPPING);
 
         return false;
     }

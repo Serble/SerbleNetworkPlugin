@@ -30,7 +30,7 @@ public class Main extends JavaPlugin {
 
         try {
             SQL.connect();  // connect to MySQL
-            sqlData.createTable();
+            sqlData.createTables();
         } catch (ClassNotFoundException | SQLException e) {
             // something failed
             Bukkit.getLogger().severe("MySQL connection failed:");
@@ -69,6 +69,9 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("play")).setExecutor(new PlayCommand());
         Objects.requireNonNull(this.getCommand("goto")).setExecutor(new PlayCommand());
         Objects.requireNonNull(this.getCommand("chatsudo")).setExecutor(new ChatSudoCommand());
+        Objects.requireNonNull(this.getCommand("serblexp")).setExecutor(new SerbleXpCommand());
+        Objects.requireNonNull(this.getCommand("sysgivexp")).setExecutor(new SystemGiveXp());
+        Objects.requireNonNull(this.getCommand("grantachievementprogress")).setExecutor(new GrantAchievementProgressCommand());
 
         // Tab completions
         Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());

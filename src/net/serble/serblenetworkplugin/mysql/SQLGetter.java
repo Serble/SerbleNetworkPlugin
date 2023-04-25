@@ -1,6 +1,8 @@
 package net.serble.serblenetworkplugin.mysql;
 
+import net.serble.serblenetworkplugin.AchievementsManager;
 import net.serble.serblenetworkplugin.Main;
+import net.serble.serblenetworkplugin.Schemas.Achievement;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -20,11 +22,15 @@ public class SQLGetter {
         }
     }
 
-    public void createTable() {
+    public void createTables() {
         PreparedStatement ps;
 
         try {
             ps = Main.plugin.SQL.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS serble_economy " +
+                    "(UUID VARCHAR(36), BALANCE INT(100), PRIMARY KEY (UUID));");
+            ps.executeUpdate();
+
+            ps = Main.plugin.SQL.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS serble_xp " +
                     "(UUID VARCHAR(36), BALANCE INT(100), PRIMARY KEY (UUID));");
             ps.executeUpdate();
 
@@ -35,6 +41,12 @@ public class SQLGetter {
             ps = Main.plugin.SQL.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS serble_adminmode " +
                     "(UUID VARCHAR(36), ENABLED BOOLEAN, PRIMARY KEY (UUID));");
             ps.executeUpdate();
+
+            ps = Main.plugin.SQL.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS serble_achievements " +
+                    "(UUID VARCHAR(36), " + AchievementsManager.generateMySqlFieldString() + "PRIMARY KEY (UUID));");
+            ps.executeUpdate();
+
+            AchievementsManager.fixMySqlColumns();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -47,6 +59,22 @@ public class SQLGetter {
             if (existsInEco(uuid)) return;
 
             PreparedStatement ps = Main.plugin.SQL.getConnection().prepareStatement("INSERT IGNORE INTO serble_economy" +
+                    " (UUID) VALUES (?);");
+            ps.setString(1, uuid.toString());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createPlayerXp(Player p) {
+        try {
+            UUID uuid = p.getUniqueId();
+
+            if (existsInXp(uuid)) return;
+
+            PreparedStatement ps = Main.plugin.SQL.getConnection().prepareStatement("INSERT IGNORE INTO serble_xp" +
                     " (UUID) VALUES (?);");
             ps.setString(1, uuid.toString());
             ps.executeUpdate();
@@ -83,6 +111,21 @@ public class SQLGetter {
             ps.setString(1, uuid.toString());
             ps.executeUpdate();
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createPlayerAchievements(Player p) {
+        try {
+            UUID uuid = p.getUniqueId();
+
+            if (existsInAchievements(uuid)) return;
+
+            PreparedStatement ps = Main.plugin.SQL.getConnection().prepareStatement("INSERT IGNORE INTO serble_achievements" +
+                    " (UUID) VALUES (?);");
+            ps.setString(1, uuid.toString());
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -128,12 +171,114 @@ public class SQLGetter {
             ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT BALANCE FROM serble_economy WHERE UUID=?");
             ps.setString(1, uuid.toString());
             ResultSet rs = ps.executeQuery();
-            int bal = 0;
+            int bal;
             if (rs.next()) {
                 bal = rs.getInt("BALANCE");
                 return bal;
             }
             createPlayerEco(Objects.requireNonNull(Bukkit.getPlayer(uuid)));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+
+    public void addXp(UUID uuid, int amount) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            if (!existsInXp(uuid)) createPlayerXp(Objects.requireNonNull(Bukkit.getPlayer(uuid)));
+            ps = Main.plugin.SQL.getConnection().prepareStatement("UPDATE serble_xp SET BALANCE=? WHERE UUID=?");
+            ps.setInt(1, getXp(uuid) + amount);
+            ps.setString(2, uuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setXp(UUID uuid, int amount) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            if (!existsInXp(uuid)) createPlayerXp(Objects.requireNonNull(Bukkit.getPlayer(uuid)));
+            ps = Main.plugin.SQL.getConnection().prepareStatement("UPDATE serble_xp SET BALANCE=? WHERE UUID=?");
+            ps.setInt(1, amount);
+            ps.setString(2, uuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getXp(UUID uuid) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT BALANCE FROM serble_xp WHERE UUID=?");
+            ps.setString(1, uuid.toString());
+            ResultSet rs = ps.executeQuery();
+            int bal;
+            if (rs.next()) {
+                bal = rs.getInt("BALANCE");
+                return bal;
+            }
+            createPlayerXp(Objects.requireNonNull(Bukkit.getPlayer(uuid)));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+
+    public void addAchievementProgress(UUID uuid, Achievement achievement, int amount) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            if (!existsInAchievements(uuid)) createPlayerAchievements(Objects.requireNonNull(Bukkit.getPlayer(uuid)));
+            ps = Main.plugin.SQL.getConnection().prepareStatement(String.format("UPDATE serble_achievements SET %s=? WHERE UUID=?", achievement.toString()));
+            ps.setInt(1, getAchievement(uuid, achievement) + amount);
+            ps.setString(2, uuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setAchievement(UUID uuid, Achievement achievement, int progress) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            if (!existsInAchievements(uuid)) createPlayerAchievements(Objects.requireNonNull(Bukkit.getPlayer(uuid)));
+            ps = Main.plugin.SQL.getConnection().prepareStatement(String.format("UPDATE serble_achievements SET %s=? WHERE UUID=?", achievement.toString()));
+            ps.setInt(1, progress);
+            ps.setString(2, uuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getAchievement(UUID uuid, Achievement achievement) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            ps = Main.plugin.SQL.getConnection().prepareStatement(String.format("SELECT %s FROM serble_achievements WHERE UUID=?", achievement.toString()));
+            ps.setString(1, uuid.toString());
+            ResultSet rs = ps.executeQuery();
+            int bal;
+            if (rs.next()) {
+                bal = rs.getInt(achievement.toString());
+                return bal;
+            }
+            createPlayerXp(Objects.requireNonNull(Bukkit.getPlayer(uuid)));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -147,6 +292,21 @@ public class SQLGetter {
 
         try {
             ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT * FROM serble_economy WHERE UUID=?;");
+            ps.setString(1, uuid.toString());
+            ResultSet results = ps.executeQuery();
+            return results.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean existsInXp(UUID uuid) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT * FROM serble_xp WHERE UUID=?;");
             ps.setString(1, uuid.toString());
             ResultSet results = ps.executeQuery();
             return results.next();
@@ -177,6 +337,21 @@ public class SQLGetter {
 
         try {
             ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT * FROM serble_adminmode WHERE UUID=?;");
+            ps.setString(1, uuid.toString());
+            ResultSet results = ps.executeQuery();
+            return results.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean existsInAchievements(UUID uuid) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT * FROM serble_achievements WHERE UUID=?;");
             ps.setString(1, uuid.toString());
             ResultSet results = ps.executeQuery();
             return results.next();

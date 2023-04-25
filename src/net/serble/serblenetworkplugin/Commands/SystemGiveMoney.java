@@ -15,6 +15,23 @@ import org.bukkit.entity.Player;
 
 public class SystemGiveMoney implements CommandExecutor {
 
+    public static void GiveMoney(Player p, int amount, String reason) {
+        Main.sqlData.addMoney(p.getUniqueId(), amount);
+
+        // Message in chat
+        p.sendMessage(Functions.translate("&6+ " + amount + " coins (" + reason + ")"));
+
+        // Action bar message
+        BaseComponent[] message2 = {
+                new TextComponent("+ " + amount + " coins (" + reason + ")"),
+        };
+        message2[0].setColor(ChatColor.GOLD.asBungee());
+        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, message2);
+
+        // Sound
+        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2, 1);
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("serble.sysgivemoney")) {
@@ -49,23 +66,8 @@ public class SystemGiveMoney implements CommandExecutor {
         }
         reason.deleteCharAt(reason.length()-1);
 
-        Main.sqlData.addMoney(p.getUniqueId(), amount);
-
-//        TextComponent message = new TextComponent("+ " + amount + " coins (" + reason + ")");
-//        message.setColor(ChatColor.GOLD.asBungee());
-
-        // Message in chat
-        p.sendMessage(Functions.translate("&6+ " + amount + " coins (" + reason + ")"));
-
-        // Action bar message
-        BaseComponent[] message2 = {
-                new TextComponent("+ " + amount + " coins (" + reason + ")"),
-        };
-        message2[0].setColor(ChatColor.GOLD.asBungee());
-        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, message2);
-
-        // Sound
-        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2, 1);
+        assert p != null;
+        GiveMoney(p, amount, reason.toString());
 
         if (sender instanceof Player) {
             sender.sendMessage(Functions.translate("&aGave " + p.getName() + " " + amount + " coins"));

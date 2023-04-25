@@ -1,5 +1,7 @@
 package net.serble.serblenetworkplugin.Commands;
 
+import net.serble.serblenetworkplugin.AchievementsManager;
+import net.serble.serblenetworkplugin.Schemas.Achievement;
 import net.serble.serblenetworkplugin.Schemas.GameModeMenuItem;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
@@ -36,6 +38,7 @@ public class MenuCommand implements CommandExecutor, Listener {
             String GameMode = mi.GameMode;
             String name = mi.Name;
 
+            assert material != null;
             ItemStack stack = new ItemStack(material, 1);
             ItemMeta meta = stack.getItemMeta();
             if (!GameMode.equals("null")) {
@@ -52,6 +55,7 @@ public class MenuCommand implements CommandExecutor, Listener {
         }
 
         p.openInventory(Gamemodes);
+        AchievementsManager.GrantAchievementProgress(p, Achievement.OPEN_MENU);
 
         return false;
     }
