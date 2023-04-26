@@ -41,13 +41,14 @@ public class MoneyCommand implements CommandExecutor {
 
             Player p;
             OfflinePlayer p2;
-            UUID uuid = null;
+            UUID uuid;
             try {
                 p = Bukkit.getPlayer(args[1]);
                 if (p == null) throw new NullPointerException("Player is null");
                 uuid = p.getUniqueId();
             } catch (Exception e) {
                 // invalid player
+                // noinspection deprecation (This is the only way so shuttup java)
                 p2 = Bukkit.getOfflinePlayer(args[1]);
                 if (p2.hasPlayedBefore()) {
                     sender.sendMessage(Functions.translate
@@ -81,13 +82,14 @@ public class MoneyCommand implements CommandExecutor {
 
             Player p;
             OfflinePlayer p2;
-            UUID uuid = null;
+            UUID uuid;
             try {
                 p = Bukkit.getPlayer(args[1]);
                 if (p == null) throw new NullPointerException("Player is null");
                 uuid = p.getUniqueId();
             } catch (Exception e) {
                 // invalid player
+                // noinspection deprecation (This is the only way so shuttup java)
                 p2 = Bukkit.getOfflinePlayer(args[1]);
                 if (p2.hasPlayedBefore()) {
                     sender.sendMessage(Functions.translate
@@ -125,15 +127,16 @@ public class MoneyCommand implements CommandExecutor {
                 sender.sendMessage(Functions.translate("&4Usage: /money balance USER or /money balance"));
                 return false;
             }
-            Player p;
-            OfflinePlayer p2;
-            UUID uuid = null;
+            Player p = null;
+            OfflinePlayer p2 = null;
+            UUID uuid;
             try {
                 p = Bukkit.getPlayer(args[1]);
                 if (p == null) throw new NullPointerException("Player is null");
                 uuid = p.getUniqueId();
             } catch (Exception e) {
                 // invalid player
+                // noinspection deprecation (This is the only way so shuttup java)
                 p2 = Bukkit.getOfflinePlayer(args[1]);
                 if (p2.hasPlayedBefore()) {
                     sender.sendMessage(Functions.translate
@@ -146,7 +149,13 @@ public class MoneyCommand implements CommandExecutor {
             }
 
             int bal = Main.sqlData.getMoney(uuid);
-            sender.sendMessage(Functions.translate(String.format("&aBalance of %s: &7" + bal, sender.getName())));
+            String name;
+            if (p == null) {
+                name = p2.getName();
+            } else {
+                name = p.getName();
+            }
+            sender.sendMessage(Functions.translate(String.format("&aBalance of %s: &7" + bal, name)));
             return true;
         }
 
