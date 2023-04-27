@@ -28,6 +28,8 @@ public class AchievementsManager {
         put(Achievement.HELLO_OWNER, 1);
         put(Achievement.HELLO_CO_OWNER, 1);
         put(Achievement.I_HAVE_A_VOICE, 1);
+        put(Achievement.IMPROVEMENT, 1);
+        put(Achievement.NUMBER1, 1);
     }};
 
     // Achievement Proper Names
@@ -43,6 +45,8 @@ public class AchievementsManager {
         put(Achievement.HELLO_OWNER, "Hello CoPokBl");
         put(Achievement.HELLO_CO_OWNER, "Hello Calcilore");
         put(Achievement.I_HAVE_A_VOICE, "I Have A Voice!");
+        put(Achievement.IMPROVEMENT, "Improvement");
+        put(Achievement.NUMBER1, "#1");
     }};
 
     // Achievement Descriptions
@@ -58,6 +62,8 @@ public class AchievementsManager {
         put(Achievement.HELLO_OWNER, "Right click the CoPokBl NPC in the lobby");
         put(Achievement.HELLO_CO_OWNER, "Right click the Calcilore NPC in the lobby");
         put(Achievement.I_HAVE_A_VOICE, "Speak in chat");
+        put(Achievement.IMPROVEMENT, "Beat a parkour personal best");
+        put(Achievement.NUMBER1, "Beat a global parkour record");
     }};
 
 
@@ -108,6 +114,14 @@ public class AchievementsManager {
         put(Achievement.I_HAVE_A_VOICE, new ArrayList<>() {{
             add("sysgivemoney {player} 20 Achievement");
             add("sysgivexp {player} 40 Achievement");
+        }});
+        put(Achievement.IMPROVEMENT, new ArrayList<>() {{
+            add("sysgivemoney {player} 40 Achievement");
+            add("sysgivexp {player} 80 Achievement");
+        }});
+        put(Achievement.NUMBER1, new ArrayList<>() {{
+            add("sysgivemoney {player} 200 Achievement");
+            add("sysgivexp {player} 400 Achievement");
         }});
     }};
 

@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin.Commands;
 
+import com.mojang.datafixers.types.Func;
 import net.serble.serblenetworkplugin.Schemas.Rank;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
@@ -21,66 +22,69 @@ public class RankNickCmd implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (!sender.hasPermission("serble.ranknick.self") && !sender.hasPermission("serble.ranknick.others")) {
-            sender.sendMessage(Functions.translate("&4You do not have permission!"));
-            return true;
-        }
+        sender.sendMessage(Functions.translate("&cThis command has been disabled"));
+        return true;
 
-        if (args.length == 1) {
-
-            if (!(sender instanceof Player)) {
-                sender.sendMessage("You cannot do that!");
-                return true;
-            }
-
-            String rank = args[0];
-
-            if (!sender.hasPermission("serble.ranknick.self." + rank)) {
-                sender.sendMessage(Functions.translate("&4You do not have permission to nick as that!"));
-                return true;
-            }
-
-            rank = rank.replace('~', ' ');
-
-            UUID uuid = ((Player) sender).getUniqueId();
-
-            Main.sqlData.setRankNick(uuid, rank);
-
-            sender.sendMessage(Functions.translate("&aUser has been successfully nicked!"));
-            return true;
-        } else if (args.length == 2) {
-
-            if (!sender.hasPermission("serble.ranknick.others")) {
-                sender.sendMessage(Functions.translate("&4You do not have permission!"));
-                return true;
-            }
-            Player target;
-            try {
-                target = Bukkit.getPlayer(args[0]);
-            } catch (Exception e) {
-                sender.sendMessage(Functions.translate("&4Invalid Player"));
-                return true;
-            }
-            String rank = args[1];
-
-            if (!sender.hasPermission("serble.ranknick.others." + rank)) {
-                sender.sendMessage(Functions.translate("&4You do not have permission to nick people as that!"));
-                return true;
-            }
-
-            rank = rank.replace('~', ' ');
-
-            Main.sqlData.setRankNick(target.getUniqueId(), rank);
-
-            sender.sendMessage(Functions.translate("&aUser has been successfully nicked!"));
-            return true;
-
-        } else {
-            sender.sendMessage(Functions.translate("&4Usage: /ranknick <PLAYER> <RANK>"));
-            sender.sendMessage(Functions.translate("&4Usage: /ranknick <RANK>"));
-            sender.sendMessage(Functions.translate("&4Please note that if you want to add a space to the rank name use '~'"));
-            return true;
-        }
+//        if (!sender.hasPermission("serble.ranknick.self") && !sender.hasPermission("serble.ranknick.others")) {
+//            sender.sendMessage(Functions.translate("&4You do not have permission!"));
+//            return true;
+//        }
+//
+//        if (args.length == 1) {
+//
+//            if (!(sender instanceof Player)) {
+//                sender.sendMessage("You cannot do that!");
+//                return true;
+//            }
+//
+//            String rank = args[0];
+//
+//            if (!sender.hasPermission("serble.ranknick.self." + rank)) {
+//                sender.sendMessage(Functions.translate("&4You do not have permission to nick as that!"));
+//                return true;
+//            }
+//
+//            rank = rank.replace('~', ' ');
+//
+//            UUID uuid = ((Player) sender).getUniqueId();
+//
+//            Main.sqlData.setRankNick(uuid, rank);
+//
+//            sender.sendMessage(Functions.translate("&aUser has been successfully nicked!"));
+//            return true;
+//        } else if (args.length == 2) {
+//
+//            if (!sender.hasPermission("serble.ranknick.others")) {
+//                sender.sendMessage(Functions.translate("&4You do not have permission!"));
+//                return true;
+//            }
+//            Player target;
+//            try {
+//                target = Bukkit.getPlayer(args[0]);
+//            } catch (Exception e) {
+//                sender.sendMessage(Functions.translate("&4Invalid Player"));
+//                return true;
+//            }
+//            String rank = args[1];
+//
+//            if (!sender.hasPermission("serble.ranknick.others." + rank)) {
+//                sender.sendMessage(Functions.translate("&4You do not have permission to nick people as that!"));
+//                return true;
+//            }
+//
+//            rank = rank.replace('~', ' ');
+//
+//            Main.sqlData.setRankNick(target.getUniqueId(), rank);
+//
+//            sender.sendMessage(Functions.translate("&aUser has been successfully nicked!"));
+//            return true;
+//
+//        } else {
+//            sender.sendMessage(Functions.translate("&4Usage: /ranknick <PLAYER> <RANK>"));
+//            sender.sendMessage(Functions.translate("&4Usage: /ranknick <RANK>"));
+//            sender.sendMessage(Functions.translate("&4Please note that if you want to add a space to the rank name use '~'"));
+//            return true;
+//        }
 
     }
 

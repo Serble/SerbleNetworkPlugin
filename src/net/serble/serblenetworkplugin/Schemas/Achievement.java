@@ -12,6 +12,8 @@ public enum Achievement {
     LOOKING_FANCY,
     HELLO_OWNER,
     HELLO_CO_OWNER,
-    I_HAVE_A_VOICE
+    I_HAVE_A_VOICE,
+    IMPROVEMENT,
+    NUMBER1
 
 }

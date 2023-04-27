@@ -35,7 +35,7 @@ public class SQLGetter {
             ps.executeUpdate();
 
             ps = Main.plugin.SQL.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS serble_nicknames " +
-                    "(UUID VARCHAR(36), NICK VARCHAR(100), RANKNICK VARCHAR(100), PRIMARY KEY (UUID));");
+                    "(UUID VARCHAR(36), NICK VARCHAR(100), RANKNICK VARCHAR(100), SKIN VARCHAR(100), PRIMARY KEY (UUID));");
             ps.executeUpdate();
 
             ps = Main.plugin.SQL.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS serble_adminmode " +
@@ -376,6 +376,20 @@ public class SQLGetter {
             e.printStackTrace();
         }
     }
+    public void setNickSkin(UUID uuid, String skin) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            if (!existsInNicks(uuid)) createPlayerNick(Objects.requireNonNull(Bukkit.getPlayer(uuid)));
+            ps = Main.plugin.SQL.getConnection().prepareStatement("UPDATE serble_nicknames SET SKIN=? WHERE UUID=?");
+            ps.setString(1, skin);
+            ps.setString(2, uuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void setRankNick(UUID uuid, String name) {
         checkConnect();
@@ -403,6 +417,25 @@ public class SQLGetter {
             String name;
             if (rs.next()) {
                 name = rs.getString("NICK");
+                return name;
+            }
+            createPlayerNick(Objects.requireNonNull(Bukkit.getPlayer(uuid)));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public String getNickSkin(UUID uuid) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT SKIN FROM serble_nicknames WHERE UUID=?");
+            ps.setString(1, uuid.toString());
+            ResultSet rs = ps.executeQuery();
+            String name;
+            if (rs.next()) {
+                name = rs.getString("SKIN");
                 return name;
             }
             createPlayerNick(Objects.requireNonNull(Bukkit.getPlayer(uuid)));

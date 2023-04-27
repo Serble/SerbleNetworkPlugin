@@ -2,6 +2,8 @@ name: SerbleNetworkPlugin
 main: net.serble.serblenetworkplugin.Main
 version: 1.0
 api-version: 1.13
+depend: [NickAPI]
+softdepend: [PlaceholderAPI]
 
 commands:
   menu:
