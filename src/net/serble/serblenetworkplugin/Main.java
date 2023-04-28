@@ -49,6 +49,7 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new ScoreboardManager(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new StoreCommand(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new NicknameManager(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new CustomAchievements(), this);
 
         // Register commands
         Objects.requireNonNull(this.getCommand("menu")).setExecutor(new MenuCommand());

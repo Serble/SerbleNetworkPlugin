@@ -30,6 +30,8 @@ public class AchievementsManager {
         put(Achievement.I_HAVE_A_VOICE, 1);
         put(Achievement.IMPROVEMENT, 1);
         put(Achievement.NUMBER1, 1);
+        put(Achievement.BED_REMOVAL_SERVICE, 50);
+        put(Achievement.TOUCH_GRASS, 1);
     }};
 
     // Achievement Proper Names
@@ -47,6 +49,8 @@ public class AchievementsManager {
         put(Achievement.I_HAVE_A_VOICE, "I Have A Voice!");
         put(Achievement.IMPROVEMENT, "Improvement");
         put(Achievement.NUMBER1, "#1");
+        put(Achievement.BED_REMOVAL_SERVICE, "Bed Removal Service");
+        put(Achievement.TOUCH_GRASS, "Touch Grass");
     }};
 
     // Achievement Descriptions
@@ -64,6 +68,8 @@ public class AchievementsManager {
         put(Achievement.I_HAVE_A_VOICE, "Speak in chat");
         put(Achievement.IMPROVEMENT, "Beat a parkour personal best");
         put(Achievement.NUMBER1, "Beat a global parkour record");
+        put(Achievement.BED_REMOVAL_SERVICE, "Break 50 beds in BedWars");
+        put(Achievement.TOUCH_GRASS, "Break some grass");
     }};
 
 
@@ -122,6 +128,14 @@ public class AchievementsManager {
         put(Achievement.NUMBER1, new ArrayList<>() {{
             add("sysgivemoney {player} 200 Achievement");
             add("sysgivexp {player} 400 Achievement");
+        }});
+        put(Achievement.BED_REMOVAL_SERVICE, new ArrayList<>() {{
+            add("sysgivemoney {player} 100 Achievement");
+            add("sysgivexp {player} 200 Achievement");
+        }});
+        put(Achievement.TOUCH_GRASS, new ArrayList<>() {{
+            add("sysgivemoney {player} 40 Achievement");
+            add("sysgivexp {player} 80 Achievement");
         }});
     }};
 

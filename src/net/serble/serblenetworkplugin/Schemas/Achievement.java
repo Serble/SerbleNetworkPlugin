@@ -14,6 +14,8 @@ public enum Achievement {
     HELLO_CO_OWNER,
     I_HAVE_A_VOICE,
     IMPROVEMENT,
-    NUMBER1
+    NUMBER1,
+    BED_REMOVAL_SERVICE,
+    TOUCH_GRASS
 
 }
