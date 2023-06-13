@@ -18,6 +18,7 @@ public class Main extends JavaPlugin {
     public static boolean hasConfig = false;
     public MySQL SQL;
     public static SQLGetter sqlData;
+    public static WorldGroupInventoryManager worldGroupInventoryManager;
 
     @Override
     public void onEnable() {
@@ -40,6 +41,8 @@ public class Main extends JavaPlugin {
 
         Bukkit.getLogger().info("MySQL connected!");
 
+        worldGroupInventoryManager = new WorldGroupInventoryManager();
+
         // Register events
         Bukkit.getServer().getPluginManager().registerEvents(new Chat(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new JoinLeave(), this);
@@ -50,6 +53,7 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new StoreCommand(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new NicknameManager(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CustomAchievements(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(worldGroupInventoryManager, this);
 
         // Register commands
         Objects.requireNonNull(this.getCommand("menu")).setExecutor(new MenuCommand());
@@ -74,6 +78,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("serblexp")).setExecutor(new SerbleXpCommand());
         Objects.requireNonNull(this.getCommand("sysgivexp")).setExecutor(new SystemGiveXp());
         Objects.requireNonNull(this.getCommand("grantachievementprogress")).setExecutor(new GrantAchievementProgressCommand());
+        Objects.requireNonNull(this.getCommand("profile")).setExecutor(new ProfileCommand());
 
         // Tab completions
         Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());
@@ -104,6 +109,8 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+
+        worldGroupInventoryManager.saveAllInventories();
 
         SQL.disconnect();  // Disconnect MySQL
 

@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin.Commands;
 
+import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import net.serble.serblenetworkplugin.AchievementsManager;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
 import net.serble.serblenetworkplugin.Schemas.StoreItem;
@@ -21,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class StoreCommand implements CommandExecutor, Listener {
 
@@ -47,6 +49,7 @@ public class StoreCommand implements CommandExecutor, Listener {
 
             List<String> lore = new ArrayList<>();
             lore.add("Price: " + price);
+            assert meta != null;
             meta.setLore(lore);
 
             meta.setDisplayName(Functions.translate(name));
@@ -75,17 +78,17 @@ public class StoreCommand implements CommandExecutor, Listener {
 
         for (StoreItem item : StoreItems) {
             if (e.getSlot() != item.Slot) continue;
-            if (!Functions.translate(item.Name).equals(Functions.translate(e.getCurrentItem().getItemMeta().getDisplayName()))) continue;
+            if (!Functions.translate(item.Name).equals(Functions.translate(Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName()))) continue;
             // found the item
             // now run the command if they have the money
-            int balance = Main.sqlData.getMoney(p.getUniqueId());
+            int balance = Main.sqlData.getMoney(GameProfileUtils.getPlayerUuid(p));
             if (balance < item.Cost) {
                 // they don't have enough
                 p.sendMessage(Functions.translate("&4You don't have enough money! Balance: " + balance));
                 return;
             }
 
-            Main.sqlData.addMoney(p.getUniqueId(), -item.Cost);  // Charge the money
+            Main.sqlData.addMoney(GameProfileUtils.getPlayerUuid(p), -item.Cost);  // Charge the money
 
             for (String cmd : item.Commands) {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("{player}", p.getName()));

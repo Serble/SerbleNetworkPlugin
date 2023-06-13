@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin.Commands;
 
+import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
 import org.bukkit.Bukkit;
@@ -45,7 +46,7 @@ public class MoneyCommand implements CommandExecutor {
             try {
                 p = Bukkit.getPlayer(args[1]);
                 if (p == null) throw new NullPointerException("Player is null");
-                uuid = p.getUniqueId();
+                uuid = GameProfileUtils.getPlayerUuid(p);
             } catch (Exception e) {
                 // invalid player
                 // noinspection deprecation (This is the only way so shuttup java)
@@ -53,7 +54,7 @@ public class MoneyCommand implements CommandExecutor {
                 if (p2.hasPlayedBefore()) {
                     sender.sendMessage(Functions.translate
                             ("&7&lWARNING: &r&7Obtaining offline player through depreciated method! This is not recommended"));
-                    uuid = p2.getUniqueId();
+                    uuid = GameProfileUtils.getPlayerUuid(p2.getUniqueId());
                 } else {
                     sender.sendMessage(Functions.translate("&4That is not a valid player name! Usage: /money set USER AMOUNT"));
                     return false;
@@ -86,7 +87,7 @@ public class MoneyCommand implements CommandExecutor {
             try {
                 p = Bukkit.getPlayer(args[1]);
                 if (p == null) throw new NullPointerException("Player is null");
-                uuid = p.getUniqueId();
+                uuid = GameProfileUtils.getPlayerUuid(p);
             } catch (Exception e) {
                 // invalid player
                 // noinspection deprecation (This is the only way so shuttup java)
@@ -94,7 +95,7 @@ public class MoneyCommand implements CommandExecutor {
                 if (p2.hasPlayedBefore()) {
                     sender.sendMessage(Functions.translate
                             ("&7&lWARNING: &r&7Obtaining offline player through depreciated method! This is not recommended"));
-                    uuid = p2.getUniqueId();
+                    uuid = GameProfileUtils.getPlayerUuid(p2.getUniqueId());
                 } else {
                     sender.sendMessage(Functions.translate("&4That is not a valid player name! Usage: /money set USER AMOUNT"));
                     return false;
@@ -118,7 +119,7 @@ public class MoneyCommand implements CommandExecutor {
         if (args[0].equalsIgnoreCase("balance") || args[0].equalsIgnoreCase("bal")) {
             if (sender instanceof Player) {
                 if (args.length == 1) {
-                    int bal = Main.sqlData.getMoney(((Player)sender).getUniqueId());
+                    int bal = Main.sqlData.getMoney(GameProfileUtils.getPlayerUuid((Player)sender));
                     sender.sendMessage(Functions.translate("&aBalance: &7" + bal));
                     return true;
                 }
@@ -133,7 +134,7 @@ public class MoneyCommand implements CommandExecutor {
             try {
                 p = Bukkit.getPlayer(args[1]);
                 if (p == null) throw new NullPointerException("Player is null");
-                uuid = p.getUniqueId();
+                uuid = GameProfileUtils.getPlayerUuid(p);
             } catch (Exception e) {
                 // invalid player
                 // noinspection deprecation (This is the only way so shuttup java)
@@ -141,7 +142,7 @@ public class MoneyCommand implements CommandExecutor {
                 if (p2.hasPlayedBefore()) {
                     sender.sendMessage(Functions.translate
                             ("&7&lWARNING: &r&7Obtaining offline player through depreciated method! This is not recommended"));
-                    uuid = p2.getUniqueId();
+                    uuid = GameProfileUtils.getPlayerUuid(p2.getUniqueId());
                 } else {
                     sender.sendMessage(Functions.translate("&4That is not a valid player name! Usage: /money set USER AMOUNT"));
                     return false;

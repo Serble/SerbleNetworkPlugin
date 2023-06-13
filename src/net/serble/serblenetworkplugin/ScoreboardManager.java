@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin;
 
+import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -91,7 +92,7 @@ public class ScoreboardManager implements Listener {
         onlineplayer.setScore(7);
 
         // money
-        Score money = obj.getScore(ChatColor.YELLOW + "Money: " + Main.sqlData.getMoney(player.getUniqueId()));
+        Score money = obj.getScore(ChatColor.YELLOW + "Money: " + Main.sqlData.getMoney(GameProfileUtils.getPlayerUuid(player)));
         money.setScore(6);
 
         // exp

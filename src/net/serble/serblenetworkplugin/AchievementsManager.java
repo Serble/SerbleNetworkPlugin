@@ -3,6 +3,7 @@ package net.serble.serblenetworkplugin;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -199,17 +200,17 @@ public class AchievementsManager {
 
     public static void GrantAchievementProgress(Player p, Achievement achievement, int progress) {
         int achievementLimit = AchievementProgressLimits.get(achievement);
-        int currentProgress = Main.sqlData.getAchievement(p.getUniqueId(), achievement);
+        int currentProgress = Main.sqlData.getAchievement(GameProfileUtils.getPlayerUuid(p), achievement);
         if (currentProgress == achievementLimit) {
             return;  // The achievement is already complete
         }
         if (currentProgress + progress >= achievementLimit) {
             // They completed it
             CompletedAchievement(p, achievement);
-            Main.sqlData.setAchievement(p.getUniqueId(), achievement, achievementLimit);
+            Main.sqlData.setAchievement(GameProfileUtils.getPlayerUuid(p), achievement, achievementLimit);
             return;
         }
-        Main.sqlData.setAchievement(p.getUniqueId(), achievement, currentProgress + progress);
+        Main.sqlData.setAchievement(GameProfileUtils.getPlayerUuid(p), achievement, currentProgress + progress);
     }
 
     public static void GrantAchievementProgress(Player p, Achievement achievement) {

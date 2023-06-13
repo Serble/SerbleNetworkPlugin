@@ -1,11 +1,10 @@
 package net.serble.serblenetworkplugin;
 
+import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import net.serble.serblenetworkplugin.Schemas.Rank;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.UUID;
 
 public class Functions {
 
@@ -29,7 +28,7 @@ public class Functions {
 
 
         if (!ignoreNick) {
-            String rankName = Main.sqlData.getRankNick(p.getUniqueId());
+            String rankName = Main.sqlData.getRankNick(GameProfileUtils.getPlayerUuid(p));
 
             if (rankName != null) {
                 for (int i = 0; i < Main.config.Ranks.size(); i++) {

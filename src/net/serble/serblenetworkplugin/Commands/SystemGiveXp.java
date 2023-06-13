@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin.Commands;
 
+import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import net.serble.serblenetworkplugin.ExperienceManager;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
@@ -13,7 +14,7 @@ import org.bukkit.entity.Player;
 public class SystemGiveXp implements CommandExecutor {
 
     public static void GiveXp(Player p, int amount, String reason) {
-        Main.sqlData.addXp(p.getUniqueId(), amount);
+        Main.sqlData.addXp(GameProfileUtils.getPlayerUuid(p), amount);
 
         // Message in chat
         p.sendMessage(Functions.translate("&9+ " + amount + " XP (" + reason + ")"));

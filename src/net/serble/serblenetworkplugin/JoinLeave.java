@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin;
 
+import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,8 +16,8 @@ public class JoinLeave implements Listener {
         Player p = e.getPlayer();
 
         // update nickname
-        if (Main.sqlData.existsInNicks(p.getUniqueId())) {
-            p.setDisplayName(Main.sqlData.getNick(p.getUniqueId()));
+        if (Main.sqlData.existsInNicks(GameProfileUtils.getPlayerUuid(p))) {
+            p.setDisplayName(Main.sqlData.getNick(GameProfileUtils.getPlayerUuid(p)));
         }
 
         // send join message

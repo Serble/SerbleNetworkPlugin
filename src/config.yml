@@ -43,3 +43,11 @@ serverport: 3306
 database: serblenetworkplugin
 user: admin
 password: averysecurepassword123
+
+# World Groups
+worldgroups:
+  gen:
+    saveplayerlocations: true
+    worlds:
+      - gen
+      - gennether

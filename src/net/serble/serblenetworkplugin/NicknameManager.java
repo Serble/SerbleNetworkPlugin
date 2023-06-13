@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin;
 
+import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -33,14 +34,14 @@ public class NicknameManager implements Listener {
     private static final Random random = new Random();
 
     public static void updateName(Player p) {
-        UUID playerId = p.getUniqueId();
+        UUID playerId = GameProfileUtils.getPlayerUuid(p);
         String nickname = Main.sqlData.getNick(playerId);
         if (Objects.equals(nickname, "") || nickname == null) {
             NickAPI.resetNick(p);
         } else {
             NickAPI.nick(p, nickname);
         }
-        String rankSkin = Main.sqlData.getNickSkin(p.getUniqueId());
+        String rankSkin = Main.sqlData.getNickSkin(GameProfileUtils.getPlayerUuid(p));
         if (Objects.equals(nickname, "") || rankSkin == null) {
             NickAPI.resetSkin(p);
         } else {
@@ -50,9 +51,10 @@ public class NicknameManager implements Listener {
     }
 
     public static void unNick(Player p) {
-        Main.sqlData.setNickSkin(p.getUniqueId(), null);
-        Main.sqlData.setNick(p.getUniqueId(), null);
-        Main.sqlData.setRankNick(p.getUniqueId(), null);
+        UUID playerUuid = GameProfileUtils.getPlayerUuid(p);
+        Main.sqlData.setNickSkin(playerUuid, null);
+        Main.sqlData.setNick(playerUuid, null);
+        Main.sqlData.setRankNick(playerUuid, null);
         NickAPI.resetNick(p);
         NickAPI.refreshPlayer(p);
     }
@@ -63,12 +65,13 @@ public class NicknameManager implements Listener {
     }
 
     public static void nick(Player p, String name, String rank, String skin) {
-        Main.sqlData.setNick(p.getUniqueId(), name);
+        UUID userId = GameProfileUtils.getPlayerUuid(p);
+        Main.sqlData.setNick(userId, name);
         if (!Objects.equals(rank, "")) {
-            Main.sqlData.setRankNick(p.getUniqueId(), rank);
+            Main.sqlData.setRankNick(userId, rank);
         }
         if (!Objects.equals(skin, "")) {
-            Main.sqlData.setNickSkin(p.getUniqueId(), skin);
+            Main.sqlData.setNickSkin(userId, skin);
         }
         updateName(p);
     }
