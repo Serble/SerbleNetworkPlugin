@@ -1,6 +1,5 @@
 package net.serble.serblenetworkplugin;
 
-import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import org.bukkit.entity.Player;
 
 // There are 1000 points in a level

@@ -3,6 +3,7 @@ package net.serble.serblenetworkplugin.mysql;
 import net.serble.serblenetworkplugin.AchievementsManager;
 import net.serble.serblenetworkplugin.Main;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
+import org.bukkit.Bukkit;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -566,7 +567,8 @@ public class SQLGetter {
                 return UUID.fromString(name);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            Objects.requireNonNull(Bukkit.getPlayer(uuid)).sendMessage("An error occurred while trying to get your active profile. Defaulting to default.");
+            throw new RuntimeException(e);
         }
         return uuid;
     }
@@ -646,6 +648,25 @@ public class SQLGetter {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public UUID getMojangUserFromProfile(UUID profile) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT UUID FROM serble_user_profiles WHERE ACTIVEPROFILE=?");
+            ps.setString(1, profile.toString());
+            ResultSet rs = ps.executeQuery();
+            String uuid;
+            if (rs.next()) {
+                uuid = rs.getString("UUID");
+                return UUID.fromString(uuid);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return profile;
     }
 
 }

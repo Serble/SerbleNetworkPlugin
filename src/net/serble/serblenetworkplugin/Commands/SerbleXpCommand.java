@@ -1,6 +1,6 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.API.GameProfileUtils;
+import net.serble.serblenetworkplugin.GameProfileUtils;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
 import org.bukkit.Bukkit;

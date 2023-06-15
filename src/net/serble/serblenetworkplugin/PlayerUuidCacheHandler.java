@@ -11,6 +11,7 @@ public class PlayerUuidCacheHandler implements Listener {
 
     private static PlayerUuidCacheHandler instance;
     private final HashMap<UUID, UUID> uuidCache = new HashMap<>();
+    private final HashMap<UUID, UUID> backwardsCache = new HashMap<>();
 
     public static PlayerUuidCacheHandler getInstance() {
         if (instance == null) {
@@ -29,11 +30,23 @@ public class PlayerUuidCacheHandler implements Listener {
         }
         UUID uuid = Main.sqlData.getActiveUuid(playerUuid);
         uuidCache.put(playerUuid, uuid);
+        backwardsCache.put(uuid, playerUuid);
         return uuid;
     }
 
     public void invalidatePlayerUuid(UUID playerUuid) {
-        uuidCache.remove(playerUuid);
+        UUID lastId = uuidCache.remove(playerUuid);
+        if (lastId != null) backwardsCache.remove(lastId);
+    }
+
+    public UUID getPlayerFromProfile(UUID profile) {
+        if (backwardsCache.containsKey(profile)) {
+            return backwardsCache.get(profile);
+        }
+        UUID uuid = Main.sqlData.getMojangUserFromProfile(profile);
+        uuidCache.put(uuid, profile);
+        backwardsCache.put(profile, uuid);
+        return uuid;
     }
 
     @EventHandler

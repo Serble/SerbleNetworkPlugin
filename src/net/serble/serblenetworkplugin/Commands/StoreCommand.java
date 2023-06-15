@@ -1,6 +1,6 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.API.GameProfileUtils;
+import net.serble.serblenetworkplugin.GameProfileUtils;
 import net.serble.serblenetworkplugin.AchievementsManager;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
 import net.serble.serblenetworkplugin.Schemas.StoreItem;

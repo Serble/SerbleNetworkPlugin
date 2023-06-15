@@ -1,11 +1,15 @@
 package net.serble.serblenetworkplugin;
 
 import com.google.gson.Gson;
+import net.serble.serblenetworkplugin.API.IdService;
+import net.serble.serblenetworkplugin.API.IdServiceImpl;
 import net.serble.serblenetworkplugin.Schemas.*;
 import net.serble.serblenetworkplugin.Commands.*;
 import net.serble.serblenetworkplugin.mysql.MySQL;
 import net.serble.serblenetworkplugin.mysql.SQLGetter;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.ServicePriority;
+import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
@@ -42,6 +46,9 @@ public class Main extends JavaPlugin {
         Bukkit.getLogger().info("MySQL connected!");
 
         worldGroupInventoryManager = new WorldGroupInventoryManager();
+
+        ServicesManager servicesManager = getServer().getServicesManager();
+        servicesManager.register(IdService.class, new IdServiceImpl(), this, ServicePriority.Normal);
 
         // Register events
         Bukkit.getServer().getPluginManager().registerEvents(new Chat(), this);

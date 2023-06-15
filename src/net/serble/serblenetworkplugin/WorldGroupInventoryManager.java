@@ -1,6 +1,5 @@
 package net.serble.serblenetworkplugin;
 
-import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -19,7 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -151,7 +149,7 @@ public class WorldGroupInventoryManager implements Listener {
         return new StoredInventory(inventory, enderChest, health, foodLevel, exp, level, gameMode, location);
     }
 
-    private void savePlayerInventory(Player player) {
+    public void savePlayerInventory(Player player) {
         UUID uuid = GameProfileUtils.getPlayerUuid(player);
         String worldGroup = getPlayerWorldGroup(player);
         if (worldGroup == null) {
@@ -165,7 +163,7 @@ public class WorldGroupInventoryManager implements Listener {
         savePlayerInventoryToFile(player, storedInventory, worldGroup);
     }
 
-    private void loadPlayerInventory(Player player) {
+    public void loadPlayerInventory(Player player) {
         UUID uuid = GameProfileUtils.getPlayerUuid(player);
         String worldGroup = getPlayerWorldGroup(player);
         if (worldGroup == null) {

@@ -1,6 +1,5 @@
 package net.serble.serblenetworkplugin;
 
-import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

@@ -3,7 +3,7 @@ package net.serble.serblenetworkplugin.Commands;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.serble.serblenetworkplugin.API.GameProfileUtils;
+import net.serble.serblenetworkplugin.GameProfileUtils;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
 import org.bukkit.Bukkit;

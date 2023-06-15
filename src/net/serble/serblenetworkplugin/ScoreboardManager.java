@@ -1,6 +1,5 @@
 package net.serble.serblenetworkplugin;
 
-import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

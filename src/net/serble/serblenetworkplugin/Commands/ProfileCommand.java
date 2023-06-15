@@ -69,10 +69,13 @@ public class ProfileCommand implements CommandExecutor {
                 profile = p.getUniqueId();
             }
 
+            Main.worldGroupInventoryManager.savePlayerInventory(p);
+
             assert profile != null;
             Main.sqlData.setActiveProfile(p.getUniqueId(), profile == p.getUniqueId() ? "0" : profile.toString());
-            p.sendMessage(Functions.translate("&aProfile set!"));
             PlayerUuidCacheHandler.getInstance().invalidatePlayerUuid(p.getUniqueId());
+            p.sendMessage(Functions.translate("&aProfile set!"));
+            Main.worldGroupInventoryManager.loadPlayerInventory(p);
             return true;
         }
         return false;

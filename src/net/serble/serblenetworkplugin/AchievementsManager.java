@@ -3,7 +3,6 @@ package net.serble.serblenetworkplugin;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.serble.serblenetworkplugin.API.GameProfileUtils;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
