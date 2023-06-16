@@ -2,7 +2,9 @@ package net.serble.serblenetworkplugin.mysql;
 
 import net.serble.serblenetworkplugin.AchievementsManager;
 import net.serble.serblenetworkplugin.Main;
+import net.serble.serblenetworkplugin.ProfilePermissionsManager;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
+import net.serble.serblenetworkplugin.Schemas.PermissionSettings;
 import org.bukkit.Bukkit;
 
 import java.sql.PreparedStatement;
@@ -55,6 +57,10 @@ public class SQLGetter {
 
             ps = Main.plugin.SQL.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS serble_achievements " +
                     "(UUID VARCHAR(36), " + AchievementsManager.generateMySqlFieldString() + "PRIMARY KEY (UUID));");
+            ps.executeUpdate();
+
+            ps = Main.plugin.SQL.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS serble_profile_permissions " +
+                    "(UUID VARCHAR(36), NODE VARCHAR(64), VALUE BOOLEAN, PRIMARY KEY (UUID));");
             ps.executeUpdate();
 
             AchievementsManager.fixMySqlColumns();
@@ -151,6 +157,52 @@ public class SQLGetter {
         }
     }
 
+
+    public void setProfilePermission(UUID p, String node, boolean value) {
+        unsetProfilePermission(p, node);
+        try {
+            PreparedStatement ps = Main.plugin.SQL.getConnection().prepareStatement("INSERT IGNORE INTO serble_profile_permissions" +
+                    " (UUID, NODE, VALUE) VALUES (?, ?, ?);");
+            ps.setString(1, p.toString());
+            ps.setString(2, node);
+            ps.setBoolean(3, value);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void unsetProfilePermission(UUID p, String node) {
+        try {
+            PreparedStatement ps = Main.plugin.SQL.getConnection().prepareStatement("DELETE FROM serble_profile_permissions" +
+                    " WHERE UUID=? AND NODE=?;");
+            ps.setString(1, p.toString());
+            ps.setString(2, node);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<PermissionSettings> getProfilePermissions(UUID p) {
+        List<PermissionSettings> permissions = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT * FROM serble_profile_permissions" +
+                    " WHERE UUID=?;");
+            ps.setString(1, p.toString());
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                permissions.add(new PermissionSettings(rs.getString("NODE"), rs.getBoolean("VALUE")));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return permissions;
+    }
 
 
     public void addMoney(UUID uuid, int amount) {

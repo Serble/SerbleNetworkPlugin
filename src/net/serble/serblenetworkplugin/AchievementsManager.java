@@ -198,18 +198,23 @@ public class AchievementsManager {
     }
 
     public static void GrantAchievementProgress(Player p, Achievement achievement, int progress) {
-        int achievementLimit = AchievementProgressLimits.get(achievement);
-        int currentProgress = Main.sqlData.getAchievement(GameProfileUtils.getPlayerUuid(p), achievement);
-        if (currentProgress == achievementLimit) {
-            return;  // The achievement is already complete
-        }
-        if (currentProgress + progress >= achievementLimit) {
-            // They completed it
-            CompletedAchievement(p, achievement);
-            Main.sqlData.setAchievement(GameProfileUtils.getPlayerUuid(p), achievement, achievementLimit);
-            return;
-        }
-        Main.sqlData.setAchievement(GameProfileUtils.getPlayerUuid(p), achievement, currentProgress + progress);
+        // Run this async to prevent lag
+        Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, () -> {
+            int achievementLimit = AchievementProgressLimits.get(achievement);
+            int currentProgress = Main.sqlData.getAchievement(GameProfileUtils.getPlayerUuid(p), achievement);
+            if (currentProgress == achievementLimit) {
+                return;  // The achievement is already complete
+            }
+            if (currentProgress + progress >= achievementLimit) {
+                // They completed it
+                Bukkit.getScheduler().runTask(Main.plugin, () -> {
+                    CompletedAchievement(p, achievement);
+                    Main.sqlData.setAchievement(GameProfileUtils.getPlayerUuid(p), achievement, achievementLimit);
+                });
+                return;
+            }
+            Main.sqlData.setAchievement(GameProfileUtils.getPlayerUuid(p), achievement, currentProgress + progress);
+        });
     }
 
     public static void GrantAchievementProgress(Player p, Achievement achievement) {

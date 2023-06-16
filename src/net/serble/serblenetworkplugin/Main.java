@@ -61,6 +61,7 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new NicknameManager(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CustomAchievements(), this);
         Bukkit.getServer().getPluginManager().registerEvents(worldGroupInventoryManager, this);
+        Bukkit.getServer().getPluginManager().registerEvents(new ProfilePermissionsManager(), this);
 
         // Register commands
         Objects.requireNonNull(this.getCommand("menu")).setExecutor(new MenuCommand());
@@ -86,6 +87,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("sysgivexp")).setExecutor(new SystemGiveXp());
         Objects.requireNonNull(this.getCommand("grantachievementprogress")).setExecutor(new GrantAchievementProgressCommand());
         Objects.requireNonNull(this.getCommand("profile")).setExecutor(new ProfileCommand());
+        Objects.requireNonNull(this.getCommand("profileperms")).setExecutor(new ProfilePermissionsCommands());
 
         // Tab completions
         Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());
@@ -116,7 +118,6 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
         worldGroupInventoryManager.saveAllInventories();
 
         SQL.disconnect();  // Disconnect MySQL

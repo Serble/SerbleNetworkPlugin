@@ -3,6 +3,7 @@ package net.serble.serblenetworkplugin.Commands;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
 import net.serble.serblenetworkplugin.PlayerUuidCacheHandler;
+import net.serble.serblenetworkplugin.ProfilePermissionsManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -70,6 +71,7 @@ public class ProfileCommand implements CommandExecutor {
             }
 
             Main.worldGroupInventoryManager.savePlayerInventory(p);
+            ProfilePermissionsManager.removeAllPermissions(p);
 
             assert profile != null;
             Main.sqlData.setActiveProfile(p.getUniqueId(), profile == p.getUniqueId() ? "0" : profile.toString());
