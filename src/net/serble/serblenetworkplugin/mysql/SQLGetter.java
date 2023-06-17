@@ -63,6 +63,10 @@ public class SQLGetter {
                     "(UUID VARCHAR(36), NODE VARCHAR(64), VALUE BOOLEAN, PRIMARY KEY (UUID));");
             ps.executeUpdate();
 
+            ps = Main.plugin.SQL.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS serble_debug_toggles " +
+                    "(UUID VARCHAR(36), VALUE BOOLEAN, PRIMARY KEY (UUID));");
+            ps.executeUpdate();
+
             AchievementsManager.fixMySqlColumns();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -122,6 +126,22 @@ public class SQLGetter {
             PreparedStatement ps = Main.plugin.SQL.getConnection().prepareStatement("INSERT IGNORE INTO serble_adminmode" +
                     " (UUID) VALUES (?);");
             ps.setString(1, p.toString());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createPlayerDebugToggle(UUID p) {
+        try {
+
+            if (existsInDebugToggles(p)) return;
+
+            PreparedStatement ps = Main.plugin.SQL.getConnection().prepareStatement("INSERT IGNORE INTO serble_debug_toggles" +
+                    " (UUID, VALUE) VALUES (?, ?);");
+            ps.setString(1, p.toString());
+            ps.setBoolean(2, false);
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -403,6 +423,21 @@ public class SQLGetter {
         return false;
     }
 
+    public boolean existsInDebugToggles(UUID uuid) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT * FROM serble_debug_toggles WHERE UUID=?;");
+            ps.setString(1, uuid.toString());
+            ResultSet results = ps.executeQuery();
+            return results.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean existsInAchievements(UUID uuid) {
         checkConnect();
         PreparedStatement ps;
@@ -580,6 +615,42 @@ public class SQLGetter {
         try {
             if (!existsInAdminMode(uuid)) createPlayerAdminMode(uuid);
             ps = Main.plugin.SQL.getConnection().prepareStatement("UPDATE serble_adminmode SET ENABLED=? WHERE UUID=?");
+            ps.setBoolean(1, name);
+            ps.setString(2, uuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public boolean getDebugToggle(UUID uuid) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT VALUE FROM serble_debug_toggles WHERE UUID=?");
+            ps.setString(1, uuid.toString());
+            ResultSet rs = ps.executeQuery();
+            boolean name;
+            if (rs.next()) {
+                name = rs.getBoolean("VALUE");
+                return name;
+            }
+            createPlayerDebugToggle(uuid);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void setDebugToggle(UUID uuid, boolean name) {
+        checkConnect();
+        PreparedStatement ps;
+
+        try {
+            if (!existsInDebugToggles(uuid)) createPlayerDebugToggle(uuid);
+            ps = Main.plugin.SQL.getConnection().prepareStatement("UPDATE serble_debug_toggles SET VALUE=? WHERE UUID=?");
             ps.setBoolean(1, name);
             ps.setString(2, uuid.toString());
             ps.executeUpdate();

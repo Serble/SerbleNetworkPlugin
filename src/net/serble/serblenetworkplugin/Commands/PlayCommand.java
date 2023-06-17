@@ -60,7 +60,7 @@ public class PlayCommand implements CommandExecutor, TabCompleter {
 
         for (GameMode gm : Main.config.GameModes) {
             if (!sender.hasPermission(gm.Permission)) continue;
-            if (!gm.Name.startsWith(args[0])) continue;
+            if (!gm.Name.toLowerCase().startsWith(args[0].toLowerCase())) continue;
             results.add(gm.Name);
         }
 

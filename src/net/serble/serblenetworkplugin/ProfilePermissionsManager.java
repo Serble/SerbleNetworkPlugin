@@ -1,6 +1,7 @@
 package net.serble.serblenetworkplugin;
 
 import net.serble.serblenetworkplugin.Schemas.PermissionSettings;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,6 +11,7 @@ import org.bukkit.permissions.PermissionAttachment;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class ProfilePermissionsManager implements Listener {
@@ -47,7 +49,7 @@ public class ProfilePermissionsManager implements Listener {
 
     public static void addPermission(UUID profile, PermissionSettings permission) {
         PermissionAttachment attachment = permissionAttachments.get(GameProfileUtils.getPlayerFromProfile(profile));
-        if (attachment == null) return;
+        if (attachment == null) attachment = Objects.requireNonNull(Bukkit.getPlayer(GameProfileUtils.getPlayerFromProfile(profile))).addAttachment(Main.plugin);
         attachment.unsetPermission(permission.node);
         attachment.setPermission(permission.node, permission.value);
 

@@ -5,6 +5,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class PlayerUuidCacheHandler implements Listener {
@@ -12,6 +13,7 @@ public class PlayerUuidCacheHandler implements Listener {
     private static PlayerUuidCacheHandler instance;
     private final HashMap<UUID, UUID> uuidCache = new HashMap<>();
     private final HashMap<UUID, UUID> backwardsCache = new HashMap<>();
+    private final HashMap<UUID, List<String>> profileListCache = new HashMap<>();
 
     public static PlayerUuidCacheHandler getInstance() {
         if (instance == null) {
@@ -39,6 +41,10 @@ public class PlayerUuidCacheHandler implements Listener {
         if (lastId != null) backwardsCache.remove(lastId);
     }
 
+    public void invalidateProfileList(UUID playerUuid) {
+        profileListCache.remove(playerUuid);
+    }
+
     public UUID getPlayerFromProfile(UUID profile) {
         if (backwardsCache.containsKey(profile)) {
             return backwardsCache.get(profile);
@@ -47,6 +53,15 @@ public class PlayerUuidCacheHandler implements Listener {
         uuidCache.put(uuid, profile);
         backwardsCache.put(profile, uuid);
         return uuid;
+    }
+
+    public List<String> getProfileList(UUID playerUuid) {
+        if (profileListCache.containsKey(playerUuid)) {
+            return profileListCache.get(playerUuid);
+        }
+        List<String> profileList = Main.sqlData.listUserProfiles(playerUuid);
+        profileListCache.put(playerUuid, profileList);
+        return profileList;
     }
 
     @EventHandler

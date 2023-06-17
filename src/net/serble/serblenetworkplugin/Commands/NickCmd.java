@@ -8,6 +8,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
+
 public class NickCmd implements CommandExecutor {
 
     // /nick <PLAYER> <NAME> <RANK> <SKIN>
@@ -28,7 +30,7 @@ public class NickCmd implements CommandExecutor {
 
             Player target;
             try {
-                target = Bukkit.getPlayer(args[0]);
+                target = Objects.requireNonNull(Bukkit.getPlayer(args[0]));
             } catch (Exception e) {
                 sender.sendMessage(Functions.translate("&cInvalid Player"));
                 return true;
@@ -53,7 +55,6 @@ public class NickCmd implements CommandExecutor {
                 skin = args[3];
             }
 
-            assert target != null;
             NicknameManager.nick(target, name, rank, skin);
 
             sender.sendMessage(Functions.translate("&a" + target.getName() + " has been successfully nicked as " + name));

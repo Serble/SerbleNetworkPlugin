@@ -1,6 +1,7 @@
 package net.serble.serblenetworkplugin;
 
 import com.google.gson.Gson;
+import net.serble.serblenetworkplugin.API.DebugService;
 import net.serble.serblenetworkplugin.API.IdService;
 import net.serble.serblenetworkplugin.API.IdServiceImpl;
 import net.serble.serblenetworkplugin.Schemas.*;
@@ -49,6 +50,7 @@ public class Main extends JavaPlugin {
 
         ServicesManager servicesManager = getServer().getServicesManager();
         servicesManager.register(IdService.class, new IdServiceImpl(), this, ServicePriority.Normal);
+        servicesManager.register(DebugService.class, new DebugManager(), this, ServicePriority.Normal);
 
         // Register events
         Bukkit.getServer().getPluginManager().registerEvents(new Chat(), this);
@@ -88,10 +90,12 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("grantachievementprogress")).setExecutor(new GrantAchievementProgressCommand());
         Objects.requireNonNull(this.getCommand("profile")).setExecutor(new ProfileCommand());
         Objects.requireNonNull(this.getCommand("profileperms")).setExecutor(new ProfilePermissionsCommands());
+        Objects.requireNonNull(this.getCommand("serbledebug")).setExecutor(new SerbleDebugCommand());
 
         // Tab completions
         Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());
         Objects.requireNonNull(this.getCommand("play")).setTabCompleter(new PlayCommand());
+        Objects.requireNonNull(this.getCommand("profile")).setTabCompleter(new ProfileCommand());
 
         // register plugin messaging channels
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "serble:serble");

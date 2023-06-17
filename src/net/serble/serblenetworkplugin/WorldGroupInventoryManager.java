@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin;
 
+import net.serble.serblenetworkplugin.API.DebugService;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -23,7 +24,21 @@ import java.util.UUID;
 
 public class WorldGroupInventoryManager implements Listener {
 
-    private final HashMap<UUID, StoredInventory> storedInventories = new HashMap<>();
+    private final HashMap<UUID, HashMap<String, StoredInventory>> storedInventories = new HashMap<>();
+
+    private void cacheInventory(UUID player, String worldGroup, StoredInventory storedInventory) {
+        if (!storedInventories.containsKey(player)) {
+            storedInventories.put(player, new HashMap<>());
+        }
+        storedInventories.get(player).put(worldGroup, storedInventory);
+    }
+
+    private StoredInventory getCacheInventory(UUID player, String worldGroup) {
+        if (!storedInventories.containsKey(player)) {
+            return null;
+        }
+        return storedInventories.get(player).get(worldGroup);
+    }
 
     public WorldGroupInventoryManager() {
         Bukkit.getPluginManager().registerEvents(this, Main.plugin);
@@ -36,6 +51,7 @@ public class WorldGroupInventoryManager implements Listener {
     public String getPlayerWorldGroup(Player player) {
         for (String worldGroupName : Objects.requireNonNull(Main.plugin.getConfig().getConfigurationSection("worldgroups")).getKeys(false)) {
             if (isPlayerInGroup(worldGroupName, player)) {
+                DebugManager.getInstance().debug(player, "You are in world group: " + worldGroupName);
                 return worldGroupName;
             }
         }
@@ -45,12 +61,14 @@ public class WorldGroupInventoryManager implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        DebugManager.getInstance().debug(player, "Loading your inventory... Your world: " + player.getWorld().getName());
         loadPlayerInventory(player);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        DebugManager.getInstance().debug(player, "Saving your inventory... Your world: " + player.getWorld().getName());
         savePlayerInventory(player);
     }
 
@@ -60,17 +78,20 @@ public class WorldGroupInventoryManager implements Listener {
             return;
         }
         Player player = event.getPlayer();
+        DebugManager.getInstance().debug(player, "Saving your inventory... Your world: " + player.getWorld().getName());
         savePlayerInventory(player);
     }
 
     @EventHandler
     public void onPlayerJoinWorld(PlayerChangedWorldEvent event) {
         Player player = event.getPlayer();
+        DebugManager.getInstance().debug(player, "Loading your inventory... Your world: " + player.getWorld().getName());
         loadPlayerInventory(player);
     }
 
     public void saveAllInventories() {
         for (Player player : Bukkit.getOnlinePlayers()) {
+            DebugManager.getInstance().debug(player, "Saving your inventory... Your world: " + player.getWorld().getName());
             savePlayerInventory(player);
         }
     }
@@ -91,6 +112,7 @@ public class WorldGroupInventoryManager implements Listener {
                 playerDataFile.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
+                DebugManager.getInstance().debug(player, "Getting your inventory failed! Reason: " + e.getMessage());
             }
         }
 
@@ -122,6 +144,7 @@ public class WorldGroupInventoryManager implements Listener {
             playerDataConfig.save(playerDataFile);
         } catch (IOException e) {
             e.printStackTrace();
+            DebugManager.getInstance().debug(player, "Failed to save your inventory to a file! Reason: " + e.getMessage());
         }
     }
 
@@ -153,24 +176,28 @@ public class WorldGroupInventoryManager implements Listener {
         UUID uuid = GameProfileUtils.getPlayerUuid(player);
         String worldGroup = getPlayerWorldGroup(player);
         if (worldGroup == null) {
+            DebugManager.getInstance().debug(player, "You are not in a world group! Not saving...");
             return;
         }
 
         boolean saveLocations = Main.plugin.getConfig().getBoolean("worldgroups." + worldGroup + ".saveplayerlocations");
 
         StoredInventory storedInventory = new StoredInventory(player.getInventory().getContents(), player.getEnderChest().getContents(), player.getHealth(), player.getFoodLevel(), player.getExp(), player.getLevel(), player.getGameMode(), saveLocations ? player.getLocation() : null);
-        storedInventories.put(uuid, storedInventory);
+        cacheInventory(uuid, worldGroup, storedInventory);
         savePlayerInventoryToFile(player, storedInventory, worldGroup);
+        String firstSlot = player.getInventory().getItem(0) == null ? "null" : player.getInventory().getItem(0).getType() == null ? "null" : player.getInventory().getItem(0).getType().name();
+        DebugManager.getInstance().debug(player, "Saved your inventory! Your world: " + player.getWorld().getName() + ". First slot: " + firstSlot);
     }
 
     public void loadPlayerInventory(Player player) {
         UUID uuid = GameProfileUtils.getPlayerUuid(player);
         String worldGroup = getPlayerWorldGroup(player);
         if (worldGroup == null) {
+            DebugManager.getInstance().debug(player, "You are not in a world group! Not loading...");
             return;
         }
 
-        if (!storedInventories.containsKey(uuid)) {
+        if (getCacheInventory(uuid, worldGroup) == null) {
             StoredInventory storedInventory = StoredInventory.getDefaultInventory();
             try {
                 storedInventory = loadPlayerInventoryFromFile(player, worldGroup);
@@ -178,16 +205,20 @@ public class WorldGroupInventoryManager implements Listener {
                 e.printStackTrace();
                 if (player.getUniqueId() == uuid) {
                     // it's a default profile so keep what they already had
+                    DebugManager.getInstance().debug(player, "No inventory found for you, using whatever inventory you currently have! Reason: " + e.getMessage());
                     return;
                 }
                 // Just use default
+                DebugManager.getInstance().debug(player, "No inventory found for you, resetting your inventory! Reason: " + e.getMessage());
             }
-            storedInventories.put(uuid, storedInventory);
+            cacheInventory(uuid, worldGroup, storedInventory);
         }
 
-        StoredInventory storedInventory = storedInventories.get(uuid);
+        StoredInventory storedInventory = getCacheInventory(uuid, worldGroup);
         if (storedInventory != null) {
             player.getInventory().setContents(storedInventory.getInventoryContents());
+            String firstSlot = player.getInventory().getItem(0) == null ? "null" : storedInventory.getInventoryContents()[0].getType() == null ? "null" : storedInventory.getInventoryContents()[0].getType().name();
+            DebugManager.getInstance().debug(player, "Loaded your inventory! Your world: " + player.getWorld().getName() + ". First slot: " + firstSlot);
             if (storedInventory.getEnderChestContents() != null) {
                 player.getEnderChest().setContents(storedInventory.getEnderChestContents());
             }
@@ -198,9 +229,13 @@ public class WorldGroupInventoryManager implements Listener {
             player.setGameMode(storedInventory.getGameMode());
             if (storedInventory.getLocation() != null && Objects.requireNonNull(storedInventory.getLocation().getWorld()).getUID() == player.getWorld().getUID()) {
                 player.teleport(storedInventory.getLocation());
+                DebugManager.getInstance().debug(player, "You have been teleported to your previous location!");
+            } else {
+                DebugManager.getInstance().debug(player, "Not teleporting you to your previous location because it is not in the same world!");
             }
         } else {
             Bukkit.getLogger().info("Could not load player inventory for " + player.getName());
+            DebugManager.getInstance().debug(player, "Could not load your inventory!");
         }
     }
 }
