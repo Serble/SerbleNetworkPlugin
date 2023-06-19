@@ -1,41 +1,44 @@
 package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.Chat;
-import net.serble.serblenetworkplugin.Functions;
-import org.bukkit.Bukkit;
+import net.serble.serblenetworkplugin.Schemas.SlashCommand;
+import net.serble.serblenetworkplugin.Schemas.SlashCommandArgument;
+import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 public class ChatSudoCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("serble.chatsudo")) {
-            sender.sendMessage(Functions.translate("&4You do not have permission!"));
-            return true;
-        }
-        if (args.length < 2) {
-            sender.sendMessage(Functions.translate("&4Usage: /chatsudo <PLAYER> <MESSAGE>"));
-            return true;
+        SlashCommand cmd = new UnprocessedCommand(sender, args)
+                .withPermission("serble.chatsudo")
+                .withUsage("&cUsage: /chatsudo <PLAYER> <MESSAGE>")
+                .process();
+        if (!cmd.isAllowed()) {
+            return false;
         }
 
-        Player p;
-        try {
-            p = Bukkit.getPlayer(args[0]);
-            if (p == null) throw new NullPointerException("Player is null");
-        } catch (Exception e) {
-            sender.sendMessage(Functions.translate("&4Player doesn't exist"));
+        SlashCommandArgument playerArg = cmd.getArg(0);
+        if (playerArg == null) {
+            cmd.sendUsage();
             return true;
         }
 
-        StringBuilder message = new StringBuilder();
-        for (int i = 1; i < args.length; i++) {
-            message.append(args[i] + " ");
+        List<Player> p = playerArg.getPlayerList();
+        if (p == null) {
+            cmd.sendUsage();
+            return true;
         }
+        String msg = cmd.combineArgs(1);
 
-        Chat.FakeChat(p, message.toString());
+        for (Player player : p) {
+            Chat.FakeChat(player, msg);
+        }
         return true;
     }
 

@@ -4,16 +4,19 @@ import com.google.gson.Gson;
 import net.serble.serblenetworkplugin.API.DebugService;
 import net.serble.serblenetworkplugin.API.IdService;
 import net.serble.serblenetworkplugin.API.IdServiceImpl;
+import net.serble.serblenetworkplugin.API.InventoryManagementService;
 import net.serble.serblenetworkplugin.Schemas.*;
 import net.serble.serblenetworkplugin.Commands.*;
 import net.serble.serblenetworkplugin.mysql.MySQL;
 import net.serble.serblenetworkplugin.mysql.SQLGetter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.ServicesManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 
 public class Main extends JavaPlugin {
@@ -51,6 +54,7 @@ public class Main extends JavaPlugin {
         ServicesManager servicesManager = getServer().getServicesManager();
         servicesManager.register(IdService.class, new IdServiceImpl(), this, ServicePriority.Normal);
         servicesManager.register(DebugService.class, new DebugManager(), this, ServicePriority.Normal);
+        servicesManager.register(InventoryManagementService.class, new InventoryManagementService(worldGroupInventoryManager), this, ServicePriority.Normal);
 
         // Register events
         Bukkit.getServer().getPluginManager().registerEvents(new Chat(), this);
@@ -91,6 +95,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("profile")).setExecutor(new ProfileCommand());
         Objects.requireNonNull(this.getCommand("profileperms")).setExecutor(new ProfilePermissionsCommands());
         Objects.requireNonNull(this.getCommand("serbledebug")).setExecutor(new SerbleDebugCommand());
+        Objects.requireNonNull(this.getCommand("setspawnpoint")).setExecutor(new SetSpawnPointCommand());
 
         // Tab completions
         Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());
@@ -110,6 +115,35 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Lag(), 100L, 1L); // Start TPS Thing
 
         getLogger().info("Serble Network Plugin is now running!");  // Tell everyone it was enabled
+
+        if (Bukkit.getOnlinePlayers().size() > 0) {
+            // It was a reload
+            boolean didRequestConfig = false;
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (!didRequestConfig) {
+                    ConfigManager.RequestConfig(p);
+                    didRequestConfig = true;
+                }
+                if (p.hasPermission("serble.staff")) {
+                    DebugManager.getInstance().debug(p, "&bReloaded the plugin!");
+                }
+            }
+
+            if (plugin.getConfig().contains("reloadcommands")) {
+                List<String> reloadCmds = plugin.getConfig().getStringList("reloadcommands");
+                for (String cmd : reloadCmds) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+                }
+            }
+        } else {
+            // It was a startup
+            if (plugin.getConfig().contains("startcommands")) {
+                List<String> reloadCmds = plugin.getConfig().getStringList("startcommands");
+                for (String cmd : reloadCmds) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+                }
+            }
+        }
 
         if (plugin.getConfig().getBoolean("override-bungee-config")) {
             String config = plugin.getConfig().getString("bungee-config");

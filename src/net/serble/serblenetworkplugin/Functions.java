@@ -5,7 +5,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Random;
+
 public class Functions {
+
+    private static Random random = new Random();
 
     public static String translate(String s) {
         return ChatColor.translateAlternateColorCodes('&', s);
@@ -53,6 +57,10 @@ public class Functions {
 
     public static String getPlayerRankDisplay(Player p) {
         return getPlayerRankDisplayB(p, false);
+    }
+
+    public static Random getRandom() {
+        return random;
     }
 
 }

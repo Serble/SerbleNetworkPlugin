@@ -1,6 +1,6 @@
 package net.serble.serblenetworkplugin;
 
-import net.serble.serblenetworkplugin.API.DebugService;
+import net.serble.serblenetworkplugin.Schemas.StoredInventory;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -10,17 +10,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class WorldGroupInventoryManager implements Listener {
 
@@ -40,6 +36,30 @@ public class WorldGroupInventoryManager implements Listener {
         return storedInventories.get(player).get(worldGroup);
     }
 
+    // Returns the players spawnpoint as set in the cache or null if it is null or the player is not in the cache
+    public Location getPlayerCurrentSpawnPoint(UUID player, String worldGroup) {
+        StoredInventory storedInventory = getCacheInventory(player, worldGroup);
+        if (storedInventory == null) {
+            return null;
+        }
+        return storedInventory.getSpawnLocation();
+    }
+
+    // Sets the players spawnpoint in the cache (it will be saved to memory if the player leaves the world or quits)
+    public void setPlayerCurrentSpawnPoint(UUID player, String worldGroup, Location location) {
+        StoredInventory storedInventory = getCacheInventory(player, worldGroup);
+        if (storedInventory == null) {
+            loadPlayerInventory(Bukkit.getPlayer(GameProfileUtils.getPlayerFromProfile(player)));
+            storedInventory = getCacheInventory(player, worldGroup);
+            if (storedInventory == null) {
+                DebugManager.getInstance().debug(Bukkit.getPlayer(GameProfileUtils.getPlayerFromProfile(player)), "&cFailed to set spawnpoint in cache, cache refusing to load user.");
+                return;
+            }
+        }
+        storedInventory.setSpawnLocation(location);
+        cacheInventory(player, worldGroup, storedInventory);
+    }
+
     public WorldGroupInventoryManager() {
         Bukkit.getPluginManager().registerEvents(this, Main.plugin);
     }
@@ -51,7 +71,6 @@ public class WorldGroupInventoryManager implements Listener {
     public String getPlayerWorldGroup(Player player) {
         for (String worldGroupName : Objects.requireNonNull(Main.plugin.getConfig().getConfigurationSection("worldgroups")).getKeys(false)) {
             if (isPlayerInGroup(worldGroupName, player)) {
-                DebugManager.getInstance().debug(player, "You are in world group: " + worldGroupName);
                 return worldGroupName;
             }
         }
@@ -87,6 +106,25 @@ public class WorldGroupInventoryManager implements Listener {
         Player player = event.getPlayer();
         DebugManager.getInstance().debug(player, "Loading your inventory... Your world: " + player.getWorld().getName());
         loadPlayerInventory(player);
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        String worldGroup = getPlayerWorldGroup(player);
+        if (worldGroup == null) {
+            return;
+        }
+        Location spawnLocation = getPlayerCurrentSpawnPoint(GameProfileUtils.getPlayerUuid(player.getUniqueId()), worldGroup);
+        if (spawnLocation == null) {
+            return;
+        }
+        if (spawnLocation.getWorld().getUID() != player.getWorld().getUID()) {
+            DebugManager.getInstance().debug(player, "&6Your respawn location was in a different world, so it was not set.");
+            return;
+        }
+        event.setRespawnLocation(spawnLocation);
+        DebugManager.getInstance().debug(player, "Your respawn location has been set to your last spawnpoint in this world group. Location: " + spawnLocation);
     }
 
     public void saveAllInventories() {
@@ -130,6 +168,7 @@ public class WorldGroupInventoryManager implements Listener {
         playerDataConfig.set("exp", storedInventory.getExp());
         playerDataConfig.set("level", storedInventory.getLevel());
         playerDataConfig.set("gameMode", storedInventory.getGameMode().toString());
+        playerDataConfig.set("potionEffects", storedInventory.getPotionEffects());
 
         if (storedInventory.getLocation() != null) {
             playerDataConfig.set("location.world", Objects.requireNonNull(storedInventory.getLocation().getWorld()).getName());
@@ -140,11 +179,18 @@ public class WorldGroupInventoryManager implements Listener {
             playerDataConfig.set("location.pitch", storedInventory.getLocation().getPitch());
         }
 
+        if (storedInventory.getSpawnLocation() != null) {
+            playerDataConfig.set("spawnpoint.world", Objects.requireNonNull(storedInventory.getSpawnLocation().getWorld()).getName());
+            playerDataConfig.set("spawnpoint.x", storedInventory.getSpawnLocation().getX());
+            playerDataConfig.set("spawnpoint.y", storedInventory.getSpawnLocation().getY());
+            playerDataConfig.set("spawnpoint.z", storedInventory.getSpawnLocation().getZ());
+        }
+
         try {
             playerDataConfig.save(playerDataFile);
         } catch (IOException e) {
             e.printStackTrace();
-            DebugManager.getInstance().debug(player, "Failed to save your inventory to a file! Reason: " + e.getMessage());
+            DebugManager.getInstance().debug(player, "&cFailed to save your inventory to a file! Reason: " + e.getMessage());
         }
     }
 
@@ -169,7 +215,25 @@ public class WorldGroupInventoryManager implements Listener {
         float pitch = (float) playerDataConfig.getDouble("location.pitch");
         Location location = new Location(world, x, y, z, yaw, pitch);
 
-        return new StoredInventory(inventory, enderChest, health, foodLevel, exp, level, gameMode, location);
+        List<?> potionEffectsList = playerDataConfig.getList("potionEffects");
+        List<PotionEffect> potionEffects = new ArrayList<>();
+        if (potionEffectsList != null) {
+            for (Object potionEffect : Objects.requireNonNull(playerDataConfig.getList("potionEffects"))) {
+                potionEffects.add((PotionEffect) potionEffect);
+            }
+        }
+
+        // spawnpoint
+        Location spawnpoint = null;
+        if (playerDataConfig.contains("spawnpoint")) {
+            world = Bukkit.getWorld(Objects.requireNonNull(playerDataConfig.getString("spawnpoint.world")));
+            x = playerDataConfig.getDouble("spawnpoint.x");
+            y = playerDataConfig.getDouble("spawnpoint.y");
+            z = playerDataConfig.getDouble("spawnpoint.z");
+            spawnpoint = new Location(world, x, y, z);
+        }
+
+        return new StoredInventory(inventory, enderChest, health, foodLevel, exp, level, gameMode, location, potionEffects, spawnpoint);
     }
 
     public void savePlayerInventory(Player player) {
@@ -182,11 +246,18 @@ public class WorldGroupInventoryManager implements Listener {
 
         boolean saveLocations = Main.plugin.getConfig().getBoolean("worldgroups." + worldGroup + ".saveplayerlocations");
 
-        StoredInventory storedInventory = new StoredInventory(player.getInventory().getContents(), player.getEnderChest().getContents(), player.getHealth(), player.getFoodLevel(), player.getExp(), player.getLevel(), player.getGameMode(), saveLocations ? player.getLocation() : null);
+        StoredInventory cachedInventory = getCacheInventory(uuid, worldGroup);
+        StoredInventory storedInventory = new StoredInventory(
+                player.getInventory().getContents(),
+                player.getEnderChest().getContents(),
+                player.getHealth(), player.getFoodLevel(),
+                player.getExp(), player.getLevel(),
+                player.getGameMode(),
+                saveLocations ? player.getLocation() : null,
+                player.getActivePotionEffects(),
+                cachedInventory == null ? null : cachedInventory.getSpawnLocation());
         cacheInventory(uuid, worldGroup, storedInventory);
         savePlayerInventoryToFile(player, storedInventory, worldGroup);
-        String firstSlot = player.getInventory().getItem(0) == null ? "null" : player.getInventory().getItem(0).getType() == null ? "null" : player.getInventory().getItem(0).getType().name();
-        DebugManager.getInstance().debug(player, "Saved your inventory! Your world: " + player.getWorld().getName() + ". First slot: " + firstSlot);
     }
 
     public void loadPlayerInventory(Player player) {
@@ -205,11 +276,11 @@ public class WorldGroupInventoryManager implements Listener {
                 e.printStackTrace();
                 if (player.getUniqueId() == uuid) {
                     // it's a default profile so keep what they already had
-                    DebugManager.getInstance().debug(player, "No inventory found for you, using whatever inventory you currently have! Reason: " + e.getMessage());
+                    DebugManager.getInstance().debug(player, "&rNo inventory found for you, using whatever inventory you currently have! Reason: " + e.getMessage());
                     return;
                 }
                 // Just use default
-                DebugManager.getInstance().debug(player, "No inventory found for you, resetting your inventory! Reason: " + e.getMessage());
+                DebugManager.getInstance().debug(player, "&rNo inventory found for you, resetting your inventory! Reason: " + e.getMessage());
             }
             cacheInventory(uuid, worldGroup, storedInventory);
         }
@@ -217,8 +288,6 @@ public class WorldGroupInventoryManager implements Listener {
         StoredInventory storedInventory = getCacheInventory(uuid, worldGroup);
         if (storedInventory != null) {
             player.getInventory().setContents(storedInventory.getInventoryContents());
-            String firstSlot = player.getInventory().getItem(0) == null ? "null" : storedInventory.getInventoryContents()[0].getType() == null ? "null" : storedInventory.getInventoryContents()[0].getType().name();
-            DebugManager.getInstance().debug(player, "Loaded your inventory! Your world: " + player.getWorld().getName() + ". First slot: " + firstSlot);
             if (storedInventory.getEnderChestContents() != null) {
                 player.getEnderChest().setContents(storedInventory.getEnderChestContents());
             }
@@ -233,67 +302,11 @@ public class WorldGroupInventoryManager implements Listener {
             } else {
                 DebugManager.getInstance().debug(player, "Not teleporting you to your previous location because it is not in the same world!");
             }
+            player.getActivePotionEffects().clear();
+            player.getActivePotionEffects().addAll(storedInventory.getPotionEffects());
         } else {
             Bukkit.getLogger().info("Could not load player inventory for " + player.getName());
-            DebugManager.getInstance().debug(player, "Could not load your inventory!");
+            DebugManager.getInstance().debug(player, "&cCould not load your inventory!");
         }
-    }
-}
-
-class StoredInventory {
-    private final ItemStack[] inventoryContents;
-    private final ItemStack[] enderChestContents;
-    private final double health;
-    private final int foodLevel;
-    private final float exp;
-    private final int level;
-    private final GameMode gameMode;
-    private final Location location;
-
-    public StoredInventory(ItemStack[] inventoryContents, ItemStack[] enderChest, double health, int foodLevel, float exp, int level, GameMode gameMode, Location location) {
-        this.inventoryContents = inventoryContents;
-        this.enderChestContents = enderChest;
-        this.health = health;
-        this.foodLevel = foodLevel;
-        this.exp = exp;
-        this.level = level;
-        this.gameMode = gameMode;
-        this.location = location;
-    }
-
-    public ItemStack[] getInventoryContents() {
-        return inventoryContents;
-    }
-
-    public ItemStack[] getEnderChestContents() {
-        return enderChestContents;
-    }
-
-    public double getHealth() {
-        return health;
-    }
-
-    public int getFoodLevel() {
-        return foodLevel;
-    }
-
-    public float getExp() {
-        return exp;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public GameMode getGameMode() {
-        return gameMode;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public static StoredInventory getDefaultInventory() {
-        return new StoredInventory(new ItemStack[36], new ItemStack[27], 20, 20, 0, 0, GameMode.SURVIVAL, null);
     }
 }

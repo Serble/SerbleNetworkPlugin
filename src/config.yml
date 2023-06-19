@@ -51,3 +51,9 @@ worldgroups:
     worlds:
       - gen
       - gennether
+
+startcommands:
+  - say Hello World!
+
+reloadcommands:
+  - pm reload SomeDependOfMe
