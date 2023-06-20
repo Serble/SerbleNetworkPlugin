@@ -2,9 +2,13 @@ package net.serble.serblenetworkplugin;
 
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.UUID;
+
 // There are 1000 points in a level
 
 public class ExperienceManager {
+    private static final HashMap<UUID, Integer> xpCache = new HashMap<>();
 
     public static int getXp(Player p) {
         return Main.sqlData.getXp(GameProfileUtils.getPlayerUuid(p));
@@ -33,6 +37,38 @@ public class ExperienceManager {
 
     public static void setPlayerExperience(Player player) {
         setPlayerExperience(player, getXp(player));
+    }
+
+    public static void setSerbleXp(UUID player, int xp) {
+        if (xpCache.containsKey(player)) {
+            xpCache.replace(player, xp);
+        } else {
+            xpCache.put(player, xp);
+        }
+        Main.sqlData.setXp(player, xp);
+    }
+
+    public static void addSerbleXp(UUID player, int xp) {
+        if (xpCache.containsKey(player)) {
+            xpCache.replace(player, xpCache.get(player) + xp);
+        } else {
+            xpCache.put(player, xp);
+        }
+        Main.sqlData.addXp(player, xp);
+    }
+
+    public static int getSerbleXp(UUID player) {
+        if (xpCache.containsKey(player)) {
+            return xpCache.get(player);
+        } else {
+            int xp = Main.sqlData.getXp(player);
+            xpCache.put(player, xp);
+            return xp;
+        }
+    }
+
+    public static void invalidateCacheForUser(UUID player) {
+        xpCache.remove(player);
     }
 
 }

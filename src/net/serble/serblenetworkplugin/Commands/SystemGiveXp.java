@@ -3,7 +3,6 @@ package net.serble.serblenetworkplugin.Commands;
 import net.serble.serblenetworkplugin.GameProfileUtils;
 import net.serble.serblenetworkplugin.ExperienceManager;
 import net.serble.serblenetworkplugin.Functions;
-import net.serble.serblenetworkplugin.Main;
 import net.serble.serblenetworkplugin.MenuItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -13,8 +12,8 @@ import org.bukkit.entity.Player;
 
 public class SystemGiveXp implements CommandExecutor {
 
-    public static void GiveXp(Player p, int amount, String reason) {
-        Main.sqlData.addXp(GameProfileUtils.getPlayerUuid(p), amount);
+    public static void giveXp(Player p, int amount, String reason) {
+        ExperienceManager.addSerbleXp(GameProfileUtils.getPlayerUuid(p), amount);
 
         // Message in chat
         p.sendMessage(Functions.translate("&9+ " + amount + " XP (" + reason + ")"));
@@ -59,7 +58,7 @@ public class SystemGiveXp implements CommandExecutor {
         reason.deleteCharAt(reason.length()-1);
 
         assert p != null;
-        GiveXp(p, amount, reason.toString());
+        giveXp(p, amount, reason.toString());
 
         if (sender instanceof Player) {
             sender.sendMessage(Functions.translate("&aGave " + p.getName() + " " + amount + " XP"));

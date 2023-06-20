@@ -1,11 +1,8 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.GameProfileUtils;
-import net.serble.serblenetworkplugin.AchievementsManager;
+import net.serble.serblenetworkplugin.*;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
 import net.serble.serblenetworkplugin.Schemas.StoreItem;
-import net.serble.serblenetworkplugin.Functions;
-import net.serble.serblenetworkplugin.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -81,14 +78,14 @@ public class StoreCommand implements CommandExecutor, Listener {
             if (!Functions.translate(item.Name).equals(Functions.translate(Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName()))) continue;
             // found the item
             // now run the command if they have the money
-            int balance = Main.sqlData.getMoney(GameProfileUtils.getPlayerUuid(p));
+            int balance = MoneyCacheManager.getMoney(GameProfileUtils.getPlayerUuid(p));
             if (balance < item.Cost) {
                 // they don't have enough
                 p.sendMessage(Functions.translate("&4You don't have enough money! Balance: " + balance));
                 return;
             }
 
-            Main.sqlData.addMoney(GameProfileUtils.getPlayerUuid(p), -item.Cost);  // Charge the money
+            MoneyCacheManager.addMoney(GameProfileUtils.getPlayerUuid(p), -item.Cost);
 
             for (String cmd : item.Commands) {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("{player}", p.getName()));

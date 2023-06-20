@@ -91,7 +91,7 @@ public class ScoreboardManager implements Listener {
         onlineplayer.setScore(7);
 
         // money
-        Score money = obj.getScore(ChatColor.YELLOW + "Money: " + Main.sqlData.getMoney(GameProfileUtils.getPlayerUuid(player)));
+        Score money = obj.getScore(ChatColor.YELLOW + "Money: " + MoneyCacheManager.getMoney(GameProfileUtils.getPlayerUuid(player)));
         money.setScore(6);
 
         // exp

@@ -1,8 +1,8 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.GameProfileUtils;
+import net.serble.serblenetworkplugin.ExperienceManager;
 import net.serble.serblenetworkplugin.Functions;
-import net.serble.serblenetworkplugin.Main;
+import net.serble.serblenetworkplugin.GameProfileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -70,7 +70,7 @@ public class SerbleXpCommand implements CommandExecutor {
                 return false;
             }
 
-            Main.sqlData.setXp(uuid, value);
+            ExperienceManager.setSerbleXp(uuid, value);
             sender.sendMessage(Functions.translate(String.format("&aSet %s's XP to &7" + value, args[1])));
             return true;
         }
@@ -111,7 +111,7 @@ public class SerbleXpCommand implements CommandExecutor {
                 return false;
             }
 
-            Main.sqlData.addXp(uuid, value);
+            ExperienceManager.addSerbleXp(uuid, value);
             sender.sendMessage(Functions.translate(String.format("&aAdded &7" + value + "&a to %s's balance ", args[1])));
             return true;
         }
@@ -119,7 +119,7 @@ public class SerbleXpCommand implements CommandExecutor {
         if (args[0].equalsIgnoreCase("balance") || args[0].equalsIgnoreCase("bal")) {
             if (sender instanceof Player) {
                 if (args.length == 1) {
-                    int bal = Main.sqlData.getXp(GameProfileUtils.getPlayerUuid((Player) sender));
+                    int bal = ExperienceManager.getSerbleXp(GameProfileUtils.getPlayerUuid((Player) sender));
                     sender.sendMessage(Functions.translate("&aBalance: &7" + bal));
                     return true;
                 }
@@ -149,7 +149,7 @@ public class SerbleXpCommand implements CommandExecutor {
                 }
             }
 
-            int bal = Main.sqlData.getXp(uuid);
+            int bal = ExperienceManager.getSerbleXp(uuid);
             String name;
             if (p == null) {
                 name = p2.getName();

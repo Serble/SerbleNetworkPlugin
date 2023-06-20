@@ -27,6 +27,7 @@ public class Main extends JavaPlugin {
     public MySQL SQL;
     public static SQLGetter sqlData;
     public static WorldGroupInventoryManager worldGroupInventoryManager;
+    public static PartyManager partyManager;
 
     @Override
     public void onEnable() {
@@ -50,6 +51,7 @@ public class Main extends JavaPlugin {
         Bukkit.getLogger().info("MySQL connected!");
 
         worldGroupInventoryManager = new WorldGroupInventoryManager();
+        partyManager = new PartyManager();
 
         ServicesManager servicesManager = getServer().getServicesManager();
         servicesManager.register(IdService.class, new IdServiceImpl(), this, ServicePriority.Normal);
@@ -68,6 +70,7 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new CustomAchievements(), this);
         Bukkit.getServer().getPluginManager().registerEvents(worldGroupInventoryManager, this);
         Bukkit.getServer().getPluginManager().registerEvents(new ProfilePermissionsManager(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new CacheInvalidationManager(), this);
 
         // Register commands
         Objects.requireNonNull(this.getCommand("menu")).setExecutor(new MenuCommand());
@@ -96,6 +99,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("profileperms")).setExecutor(new ProfilePermissionsCommands());
         Objects.requireNonNull(this.getCommand("serbledebug")).setExecutor(new SerbleDebugCommand());
         Objects.requireNonNull(this.getCommand("setspawnpoint")).setExecutor(new SetSpawnPointCommand());
+        Objects.requireNonNull(this.getCommand("sysdebug")).setExecutor(new SystemDebugCommand());
 
         // Tab completions
         Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());
@@ -105,6 +109,7 @@ public class Main extends JavaPlugin {
         // register plugin messaging channels
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "serble:serble");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "serble:serble", new ConfigManager());
+        this.getServer().getMessenger().registerIncomingPluginChannel(this, "serble:party", partyManager);
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "calcilator:svtp");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "calcilator:svtp", new SVTPManager());
 

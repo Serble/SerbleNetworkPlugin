@@ -3,9 +3,9 @@ package net.serble.serblenetworkplugin.Commands;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.serble.serblenetworkplugin.GameProfileUtils;
 import net.serble.serblenetworkplugin.Functions;
-import net.serble.serblenetworkplugin.Main;
+import net.serble.serblenetworkplugin.GameProfileUtils;
+import net.serble.serblenetworkplugin.MoneyCacheManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 public class SystemGiveMoney implements CommandExecutor {
 
     public static void GiveMoney(Player p, int amount, String reason) {
-        Main.sqlData.addMoney(GameProfileUtils.getPlayerUuid(p), amount);
+        MoneyCacheManager.addMoney(GameProfileUtils.getPlayerUuid(p), amount);
 
         // Message in chat
         p.sendMessage(Functions.translate("&6+ " + amount + " coins (" + reason + ")"));

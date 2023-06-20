@@ -1,8 +1,8 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.GameProfileUtils;
 import net.serble.serblenetworkplugin.Functions;
-import net.serble.serblenetworkplugin.Main;
+import net.serble.serblenetworkplugin.GameProfileUtils;
+import net.serble.serblenetworkplugin.MoneyCacheManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -70,7 +70,7 @@ public class MoneyCommand implements CommandExecutor {
                 return false;
             }
 
-            Main.sqlData.setMoney(uuid, value);
+            MoneyCacheManager.setMoney(uuid, value);
             sender.sendMessage(Functions.translate(String.format("&aSet %s's balance to &7" + value, args[1])));
             return true;
         }
@@ -111,7 +111,7 @@ public class MoneyCommand implements CommandExecutor {
                 return false;
             }
 
-            Main.sqlData.addMoney(uuid, value);
+            MoneyCacheManager.addMoney(uuid, value);
             sender.sendMessage(Functions.translate(String.format("&aAdded &7" + value + "&a to %s's balance ", args[1])));
             return true;
         }
@@ -119,7 +119,7 @@ public class MoneyCommand implements CommandExecutor {
         if (args[0].equalsIgnoreCase("balance") || args[0].equalsIgnoreCase("bal")) {
             if (sender instanceof Player) {
                 if (args.length == 1) {
-                    int bal = Main.sqlData.getMoney(GameProfileUtils.getPlayerUuid((Player)sender));
+                    int bal = MoneyCacheManager.getMoney(GameProfileUtils.getPlayerUuid((Player)sender));
                     sender.sendMessage(Functions.translate("&aBalance: &7" + bal));
                     return true;
                 }
@@ -149,7 +149,7 @@ public class MoneyCommand implements CommandExecutor {
                 }
             }
 
-            int bal = Main.sqlData.getMoney(uuid);
+            int bal = MoneyCacheManager.getMoney(uuid);
             String name;
             if (p == null) {
                 name = p2.getName();
