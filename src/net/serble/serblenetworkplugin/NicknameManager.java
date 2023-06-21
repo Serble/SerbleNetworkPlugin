@@ -16,11 +16,51 @@ public class NicknameManager implements Listener {
     private static final ArrayList<String> adjectives = new ArrayList<>() {{
         add("red");
         add("bouncy");
+        add("blue");
+        add("happy");
+        add("swift");
+        add("mighty");
+        add("tiny");
+        add("shiny");
+        add("brave");
+        add("lucky");
+        add("fuzzy");
+        add("squeaky");
+        add("bright");
+        add("chilly");
+        add("calm");
+        add("wacky");
+        add("rainy");
+        add("jumpy");
+        add("daring");
+        add("sly");
+        add("majestic");
+        add("crimson");
     }};
 
     private static final ArrayList<String> nouns = new ArrayList<>() {{
         add("apple");
         add("spider");
+        add("balloon");
+        add("kitten");
+        add("dragon");
+        add("sword");
+        add("cupcake");
+        add("pony");
+        add("robot");
+        add("unicorn");
+        add("penguin");
+        add("banana");
+        add("star");
+        add("pumpkin");
+        add("owl");
+        add("taco");
+        add("ninja");
+        add("giraffe");
+        add("elephant");
+        add("hamster");
+        add("castle");
+        add("spaceship");
     }};
 
     private static final ArrayList<String> skins = new ArrayList<>() {{
@@ -28,6 +68,28 @@ public class NicknameManager implements Listener {
         add("technoblade");
         add("skeppy");
         add("bedlessnoob");
+        add("dream");
+        add("georgenotfound");
+        add("sapnap");
+        add("badboyhalo");
+        add("fundy");
+        add("wilbursoot");
+        add("philza");
+        add("tommyinnit");
+        add("tubbo");
+        add("nihachu");
+        add("jschlatt");
+        add("antfrost");
+        add("quackity");
+        add("karljacobs");
+        add("ponk");
+        add("awesamdude");
+        add("ranboo");
+        add("purpled");
+        add("foolishgamers");
+        add("eret");
+        add("calcilore");
+        add("copokbl");
     }};
 
     private static final Random random = new Random();
@@ -51,9 +113,11 @@ public class NicknameManager implements Listener {
 
     public static void unNick(Player p) {
         UUID playerUuid = GameProfileUtils.getPlayerUuid(p);
-        Main.sqlData.setNickSkin(playerUuid, null);
-        Main.sqlData.setNick(playerUuid, null);
-        Main.sqlData.setRankNick(playerUuid, null);
+        Functions.runAsync(() -> {
+            Main.sqlData.setNick(playerUuid, null);
+            Main.sqlData.setRankNick(playerUuid, null);
+            Main.sqlData.setNickSkin(playerUuid, null);
+        });  // That's too many mysql queries to run on the main thread
         NickAPI.resetNick(p);
         NickAPI.refreshPlayer(p);
     }
@@ -65,7 +129,7 @@ public class NicknameManager implements Listener {
 
     public static void nick(Player p, String name, String rank, String skin) {
         UUID userId = GameProfileUtils.getPlayerUuid(p);
-        Main.sqlData.setNick(userId, name);
+        Main.sqlData.setNick(userId, name);  // These need to finish before updateName is called or else updateName won't get the correct name
         if (!Objects.equals(rank, "")) {
             Main.sqlData.setRankNick(userId, rank);
         }
@@ -76,8 +140,7 @@ public class NicknameManager implements Listener {
     }
 
     public static void randomNick(Player p) {
-        String name = generateName();
-        nick(p, name, "default", randomSkin());
+        nick(p, generateName(), "default", randomSkin());
     }
 
     public static String generateName() {

@@ -63,4 +63,24 @@ public class Functions {
         return random;
     }
 
+    public static void runAsync(Runnable runnable) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        }.runTaskAsynchronously(Main.plugin);
+    }
+
+    // BUT WHY!?!?!?
+    // Because then I don't need an if statement in the code if I want it to be an option
+    // Don't question me
+    public static void runAsync(Runnable runnable, boolean async) {
+        if (async) {
+            runAsync(runnable);
+        } else {
+            runnable.run();
+        }
+    }
+
 }

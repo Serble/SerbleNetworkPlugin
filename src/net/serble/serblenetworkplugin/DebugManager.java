@@ -1,6 +1,7 @@
 package net.serble.serblenetworkplugin;
 
 import net.serble.serblenetworkplugin.API.DebugService;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -18,14 +19,28 @@ public class DebugManager implements DebugService {
         return instance;
     }
 
-    public void debug(Player p, String message) {
+    public void debug(Player p, String message, boolean proxyFunctionCall) {
         if (!isDebugging(p)) {
             return;
         }
 
         // set the string loc to the stack trace of the calling function. For example: "SerbleDebugCommand.java:15"
-        String loc = Thread.currentThread().getStackTrace()[2].getFileName() + ":" + Thread.currentThread().getStackTrace()[2].getLineNumber();
+        int stackTraceIndex = proxyFunctionCall ? 3 : 2;
+        String loc = Thread.currentThread().getStackTrace()[stackTraceIndex].getFileName() + ":" + Thread.currentThread().getStackTrace()[stackTraceIndex].getLineNumber();
+
         p.sendMessage(Functions.translate("&7[DEBUG] [" + loc + "] " + message));
+    }
+
+    public void debug(Player p, String message) {
+        debug(p, message, true);
+    }
+
+    public void serverDebug(String message) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!p.hasPermission("serble.staff")) continue;
+            if (!isDebugging(p)) continue;
+            debug(p, message, true);
+        }
     }
 
     public boolean isDebugging(Player p) {
@@ -39,7 +54,7 @@ public class DebugManager implements DebugService {
 
     public void setIsDebugging(Player p, boolean debug) {
         debugModeCache.put(p.getUniqueId(), debug);
-        Main.sqlData.setDebugToggle(p.getUniqueId(), debug);
+        Functions.runAsync(() -> Main.sqlData.setDebugToggle(p.getUniqueId(), debug));
     }
 
 }

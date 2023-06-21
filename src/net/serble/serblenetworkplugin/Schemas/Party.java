@@ -1,5 +1,7 @@
 package net.serble.serblenetworkplugin.Schemas;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -55,6 +57,10 @@ public class Party {
 
     public List<UUID> getInvited() {
         return this.invited;
+    }
+
+    public static Party deserialize(String json) {
+        return new Gson().fromJson(json, Party.class);
     }
 
 }

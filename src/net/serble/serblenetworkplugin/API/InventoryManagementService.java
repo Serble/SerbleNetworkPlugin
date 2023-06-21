@@ -13,6 +13,7 @@ public class InventoryManagementService {
     }
 
     public void setSpawnPoint(Player p, Location loc) {
+        if (p.getWorld().getUID() != loc.getWorld().getUID()) throw new IllegalArgumentException("Player and location must be in the same world!");
         String worldGroup = worldGroupInventoryManager.getPlayerWorldGroup(p);
         worldGroupInventoryManager.setPlayerCurrentSpawnPoint(GameProfileUtils.getPlayerUuid(p), worldGroup, loc);
     }
@@ -21,4 +22,13 @@ public class InventoryManagementService {
         String worldGroup = worldGroupInventoryManager.getPlayerWorldGroup(p);
         return worldGroupInventoryManager.getPlayerCurrentSpawnPoint(GameProfileUtils.getPlayerUuid(p), worldGroup);
     }
+
+    public void saveInventory(Player p) {
+        worldGroupInventoryManager.savePlayerInventory(p);
+    }
+
+    public void loadInventory(Player p) {
+        worldGroupInventoryManager.loadPlayerInventory(p);
+    }
+
 }

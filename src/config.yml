@@ -57,3 +57,9 @@ startcommands:
 
 reloadcommands:
   - pm reload SomeDependOfMe
+
+# Whether to try and send party members to host game mode on party warp. Disable if there is only one game mode. (Like survival)
+attempttopartywarp: true
+
+warpworldmappings:
+  gennether: gen

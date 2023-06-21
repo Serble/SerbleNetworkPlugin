@@ -39,22 +39,30 @@ public class ExperienceManager {
         setPlayerExperience(player, getXp(player));
     }
 
-    public static void setSerbleXp(UUID player, int xp) {
+    public static void setSerbleXp(UUID player, int xp, boolean async) {
         if (xpCache.containsKey(player)) {
             xpCache.replace(player, xp);
         } else {
             xpCache.put(player, xp);
         }
-        Main.sqlData.setXp(player, xp);
+        Functions.runAsync(() -> Main.sqlData.setXp(player, xp), async);
     }
 
-    public static void addSerbleXp(UUID player, int xp) {
+    public static void setSerbleXp(UUID player, int xp) {
+        setSerbleXp(player, xp, true);
+    }
+
+    public static void addSerbleXp(UUID player, int xp, boolean async) {
         if (xpCache.containsKey(player)) {
             xpCache.replace(player, xpCache.get(player) + xp);
         } else {
             xpCache.put(player, xp);
         }
-        Main.sqlData.addXp(player, xp);
+        Functions.runAsync(() -> Main.sqlData.addXp(player, xp), true);
+    }
+
+    public static void addSerbleXp(UUID player, int xp) {
+        addSerbleXp(player, xp, true);
     }
 
     public static int getSerbleXp(UUID player) {

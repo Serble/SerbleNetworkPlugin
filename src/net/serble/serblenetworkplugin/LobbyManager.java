@@ -35,7 +35,7 @@ public class LobbyManager implements Listener {
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent e) {
-        if (Main.sqlData.getAdminMode(e.getPlayer().getUniqueId())) return;
+        if (AdminModeCacheHandler.isAdminMode(e.getPlayer().getUniqueId())) return;
         if (Main.plugin.getConfig().getStringList("lobbys").contains(e.getPlayer().getWorld().getName())) {
             e.setCancelled(true);
         }
@@ -43,7 +43,7 @@ public class LobbyManager implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        if (Main.sqlData.getAdminMode(e.getPlayer().getUniqueId())) return;
+        if (AdminModeCacheHandler.isAdminMode(e.getPlayer().getUniqueId())) return;
         if (Main.plugin.getConfig().getStringList("lobbys").contains(e.getPlayer().getWorld().getName())) {
             e.setCancelled(true);
         }
@@ -51,7 +51,7 @@ public class LobbyManager implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
-        if (Main.sqlData.getAdminMode(e.getPlayer().getUniqueId())) return;
+        if (AdminModeCacheHandler.isAdminMode(e.getPlayer().getUniqueId())) return;
         if (Main.plugin.getConfig().getStringList("lobbys").contains(e.getPlayer().getWorld().getName())) {
             e.setCancelled(true);
         }

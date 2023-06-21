@@ -10,6 +10,7 @@ public class CacheInvalidationManager implements Listener {
     public void onLeave(PlayerQuitEvent e) {
         ExperienceManager.invalidateCacheForUser(GameProfileUtils.getPlayerUuid(e.getPlayer()));
         MoneyCacheManager.invalidateCacheForPlayer(GameProfileUtils.getPlayerUuid(e.getPlayer()));
+        AdminModeCacheHandler.invalidateCacheForPlayer(GameProfileUtils.getPlayerUuid(e.getPlayer()));
     }
 
 }

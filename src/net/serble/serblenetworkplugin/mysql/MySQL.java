@@ -9,8 +9,8 @@ import java.sql.SQLException;
 public class MySQL {
     private Connection connection;
 
-    public boolean isConnected() {
-        return (connection != null);
+    public boolean isConnected() throws SQLException {
+        return (connection != null) && !connection.isClosed();
     }
 
     public void connect() throws ClassNotFoundException, SQLException {
@@ -28,9 +28,8 @@ public class MySQL {
     }
 
     public void disconnect() {
-        if (!isConnected()) return;
-
         try {
+            if (!isConnected()) return;
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();

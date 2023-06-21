@@ -237,6 +237,11 @@ public class WorldGroupInventoryManager implements Listener {
     }
 
     public void savePlayerInventory(Player player) {
+        if (AdminModeCacheHandler.isAdminMode(player.getUniqueId())) {
+            DebugManager.getInstance().debug(player, "You are in admin mode! Not saving inventory...");
+            return;
+        }
+
         UUID uuid = GameProfileUtils.getPlayerUuid(player);
         String worldGroup = getPlayerWorldGroup(player);
         if (worldGroup == null) {
@@ -261,6 +266,11 @@ public class WorldGroupInventoryManager implements Listener {
     }
 
     public void loadPlayerInventory(Player player) {
+        if (AdminModeCacheHandler.isAdminMode(player.getUniqueId())) {
+            DebugManager.getInstance().debug(player, "You are in admin mode! Not loading inventory...");
+            return;
+        }
+
         UUID uuid = GameProfileUtils.getPlayerUuid(player);
         String worldGroup = getPlayerWorldGroup(player);
         if (worldGroup == null) {

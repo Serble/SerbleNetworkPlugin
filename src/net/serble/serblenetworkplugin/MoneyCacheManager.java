@@ -15,22 +15,30 @@ public class MoneyCacheManager {
         return money;
     }
 
-    public static void setMoney(UUID player, int money) {
+    public static void setMoney(UUID player, int money, boolean async) {
         if (moneyCache.containsKey(player)) {
             moneyCache.replace(player, money);
         } else {
             moneyCache.put(player, money);
         }
-        Main.sqlData.setMoney(player, money);
+        Functions.runAsync(() -> Main.sqlData.setMoney(player, money), async);
     }
 
-    public static void addMoney(UUID player, int money) {
+    public static void setMoney(UUID player, int money) {
+        setMoney(player, money, true);
+    }
+
+    public static void addMoney(UUID player, int money, boolean async) {
         if (moneyCache.containsKey(player)) {
             moneyCache.replace(player, moneyCache.get(player) + money);
         } else {
             moneyCache.put(player, money);
         }
-        Main.sqlData.addMoney(player, money);
+        Functions.runAsync(() -> Main.sqlData.addMoney(player, money), true);
+    }
+
+    public static void addMoney(UUID player, int money) {
+        addMoney(player, money, true);
     }
 
     public static void invalidateCacheForPlayer(UUID player) {

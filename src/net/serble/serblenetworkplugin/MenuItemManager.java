@@ -81,7 +81,7 @@ public class MenuItemManager implements Listener {
 
     public static boolean shouldNotGetItems(Player p) {
         if (!Main.plugin.getConfig().getStringList("lobbys").contains(p.getWorld().getName())) return true;
-        return Main.sqlData.getAdminMode(p.getUniqueId());
+        return AdminModeCacheHandler.isAdminMode(p.getUniqueId());
     }
 
     @EventHandler
@@ -146,7 +146,7 @@ public class MenuItemManager implements Listener {
 
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
-        if (Main.sqlData.getAdminMode(e.getWhoClicked().getUniqueId())) return;
+        if (AdminModeCacheHandler.isAdminMode(e.getWhoClicked().getUniqueId())) return;
         if (e.getClickedInventory() != null && e.getClickedInventory().getType() != InventoryType.PLAYER) return;
         if (Main.plugin.getConfig().getStringList("lobbys").contains(e.getWhoClicked().getWorld().getName())) {
             e.setCancelled(true);

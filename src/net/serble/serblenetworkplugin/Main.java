@@ -1,10 +1,7 @@
 package net.serble.serblenetworkplugin;
 
 import com.google.gson.Gson;
-import net.serble.serblenetworkplugin.API.DebugService;
-import net.serble.serblenetworkplugin.API.IdService;
-import net.serble.serblenetworkplugin.API.IdServiceImpl;
-import net.serble.serblenetworkplugin.API.InventoryManagementService;
+import net.serble.serblenetworkplugin.API.*;
 import net.serble.serblenetworkplugin.Schemas.*;
 import net.serble.serblenetworkplugin.Commands.*;
 import net.serble.serblenetworkplugin.mysql.MySQL;
@@ -28,6 +25,7 @@ public class Main extends JavaPlugin {
     public static SQLGetter sqlData;
     public static WorldGroupInventoryManager worldGroupInventoryManager;
     public static PartyManager partyManager;
+    public static PartyService partyService;
 
     @Override
     public void onEnable() {
@@ -52,11 +50,13 @@ public class Main extends JavaPlugin {
 
         worldGroupInventoryManager = new WorldGroupInventoryManager();
         partyManager = new PartyManager();
+        partyService = new PartyService();
 
         ServicesManager servicesManager = getServer().getServicesManager();
         servicesManager.register(IdService.class, new IdServiceImpl(), this, ServicePriority.Normal);
         servicesManager.register(DebugService.class, new DebugManager(), this, ServicePriority.Normal);
         servicesManager.register(InventoryManagementService.class, new InventoryManagementService(worldGroupInventoryManager), this, ServicePriority.Normal);
+        servicesManager.register(PartyService.class, partyService, this, ServicePriority.Normal);
 
         // Register events
         Bukkit.getServer().getPluginManager().registerEvents(new Chat(), this);
@@ -109,6 +109,7 @@ public class Main extends JavaPlugin {
         // register plugin messaging channels
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "serble:serble");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "serble:serble", new ConfigManager());
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "serble:party");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "serble:party", partyManager);
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "calcilator:svtp");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "calcilator:svtp", new SVTPManager());

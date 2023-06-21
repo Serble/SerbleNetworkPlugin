@@ -1,9 +1,9 @@
 package net.serble.serblenetworkplugin.Commands;
 
+import net.serble.serblenetworkplugin.AdminModeCacheHandler;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
 import net.serble.serblenetworkplugin.MenuItemManager;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,16 +25,23 @@ public class AdminMode implements CommandExecutor {
             return true;
         }
 
-        if (Main.sqlData.getAdminMode(p.getUniqueId())) {
-            Main.sqlData.setAdminMode(p.getUniqueId(), false);
-            MenuItemManager.GiveMenuItems(p);
+        // We are going to save the player's inventory before we clear it
+        // Inventories should never be saved while in admin mode
+        Main.worldGroupInventoryManager.savePlayerInventory(p);
+
+        if (AdminModeCacheHandler.isAdminMode(p.getUniqueId())) {
+            AdminModeCacheHandler.setAdminMode(p.getUniqueId(), false);
+            Main.worldGroupInventoryManager.loadPlayerInventory(p);
+            if (!MenuItemManager.shouldNotGetItems(p)) {
+                MenuItemManager.GiveMenuItems(p);  // Give lobby items to player if in the lobby
+            }
             sender.sendMessage(Functions.translate("&bAdmin Mode has been &4&lDisabled"));
         } else {
-            Main.sqlData.setAdminMode(p.getUniqueId(), true);
+            Main.worldGroupInventoryManager.savePlayerInventory(p);
+            AdminModeCacheHandler.setAdminMode(p.getUniqueId(), true);
             p.getInventory().clear();
             sender.sendMessage(Functions.translate("&bAdmin Mode has been &2&lEnabled"));
         }
-        Bukkit.dispatchCommand(p, "build");
         return false;
     }
 
