@@ -4,6 +4,7 @@ import net.serble.serblenetworkplugin.API.Schemas.WarpEvent;
 import net.serble.serblenetworkplugin.API.Schemas.WarpEventListener;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -29,6 +30,10 @@ public class PartyService {
         Main.partyManager.sendWarpToBungee(leader);
     }
 
+    public void triggerDelayedWarp(Player leader) {
+        Bukkit.getScheduler().runTaskLater(Main.plugin, () -> Main.partyManager.sendWarpToBungee(leader), 20L);
+    }
+
     public boolean canJoinGame(Player player) {
         return Main.partyManager.canJoinGame(player);
     }
@@ -47,6 +52,15 @@ public class PartyService {
             return false;
         }
         triggerWarp(player);
+        return true;
+    }
+
+    public boolean canJoinGameAndAlertOrDelayedWarp(Player player) {
+        boolean canJoin = canJoinGameAndAlert(player);
+        if (!canJoin) {
+            return false;
+        }
+        triggerDelayedWarp(player);
         return true;
     }
 

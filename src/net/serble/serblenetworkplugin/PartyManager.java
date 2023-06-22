@@ -8,6 +8,9 @@ import net.serble.serblenetworkplugin.Schemas.Party;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.util.ArrayList;
@@ -15,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class PartyManager implements PluginMessageListener {
+public class PartyManager implements PluginMessageListener, Listener {
     private final List<Party> parties = new ArrayList<>();
     private final HashMap<String, String> worldWarpMappings = new HashMap<>();
 
@@ -24,6 +27,11 @@ public class PartyManager implements PluginMessageListener {
             String world = Main.plugin.getConfig().getString("warpworldmappings." + key);
             this.worldWarpMappings.put(key, world);
         });
+    }
+
+    @EventHandler
+    public void playerChangeWorldEvent(PlayerChangedWorldEvent e) {
+
     }
 
     @Override

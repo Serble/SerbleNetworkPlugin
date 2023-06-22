@@ -35,8 +35,12 @@ public class PlayCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
+            if (!Main.partyService.canJoinGameAndAlertOrWarp((Player) sender)) {
+                return true;
+            }
+
             // Send them
-            SVTPManager.SendPlayer((Player) sender, gm.Server, gm.World);
+            SVTPManager.sendPlayer((Player) sender, gm.Server, gm.World);
             return true;
         }
 

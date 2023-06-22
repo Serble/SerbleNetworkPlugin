@@ -18,7 +18,7 @@ public class SlashCommand {
         this.isAllowed = isAllowed;
         this.senderType = senderType;
         this.targets = targets;
-        this.usage = Functions.translate(usage);
+        this.usage = usage == null ? null : Functions.translate(usage);
     }
 
     public CommandSender getExecutor() {

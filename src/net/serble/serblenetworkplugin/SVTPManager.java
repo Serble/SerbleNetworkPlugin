@@ -31,7 +31,7 @@ public class SVTPManager implements PluginMessageListener {
             }
             World w = Bukkit.getWorld(worldName);
             if (w == null) {
-                p.sendMessage(Functions.translate("&4Attempted to send you to a world that doesn't exist!"));
+                p.sendMessage(Functions.translate("&cAttempted to send you to a world that doesn't exist!"));
                 return;
             }
             p.teleport(w.getSpawnLocation());
@@ -39,7 +39,7 @@ public class SVTPManager implements PluginMessageListener {
         }
     }
 
-    public static void SendPlayer(final Player p, final String serverName, final String worldName) {
+    public static void sendPlayer(final Player p, final String serverName, final String worldName) {
         final ByteArrayOutputStream b = new ByteArrayOutputStream();
         final DataOutputStream out = new DataOutputStream(b);
         try {

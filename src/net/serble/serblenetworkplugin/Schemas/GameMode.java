@@ -5,4 +5,5 @@ public class GameMode {
     public String Server;
     public String World;
     public String Permission;
+    public boolean TriggersWarp;
 }

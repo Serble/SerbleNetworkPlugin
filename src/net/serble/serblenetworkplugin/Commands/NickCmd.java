@@ -58,7 +58,6 @@ public class NickCmd implements CommandExecutor {
             NicknameManager.nick(target, name, rank, skin);
 
             sender.sendMessage(Functions.translate("&a" + target.getName() + " has been successfully nicked as " + name));
-            return true;
         } else {
             if (!sender.hasPermission("serble.nick.self")) {
                 sender.sendMessage(Functions.translate("&cYou do not have permission!"));
@@ -71,9 +70,8 @@ public class NickCmd implements CommandExecutor {
             NicknameManager.randomNick((Player) sender);
             sender.sendMessage(Functions.translate("&aYou have been nicked successfully"));
             sender.sendMessage(Functions.translate("&aRejoin for this to fully take effect"));
-            return true;
         }
-
+        return true;
     }
 
 

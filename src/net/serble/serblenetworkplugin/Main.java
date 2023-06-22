@@ -209,6 +209,7 @@ public class Main extends JavaPlugin {
         mode.Server = "main";
         mode.World = "world";
         mode.Permission = "serble.default";
+        mode.TriggersWarp = true;
         save.GameModes.add(mode);
 
         Gson json = new Gson();

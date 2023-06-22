@@ -17,8 +17,7 @@ public class RankNickCmd implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
-        sender.sendMessage(Functions.translate("&cThis command has been disabled"));
+        sender.sendMessage(Functions.translate("&cThis command has been disabled. Use /nick instead."));
         return true;
 
     }
