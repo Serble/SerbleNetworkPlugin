@@ -23,6 +23,10 @@ public class JoinLeave implements Listener {
         String rankDisplay = getPlayerRankDisplay(p);
         String finalMessage = "&2+ &r" + rankDisplay + " " + p.getDisplayName();
         e.setJoinMessage(Functions.translate(finalMessage));
+
+        // Tell them their current profile
+        String profileName = Main.sqlData.getGameProfileName(GameProfileUtils.getPlayerUuid(p));
+        p.sendMessage(Functions.translate("&aActive profile: &7" + profileName));
     }
 
     @EventHandler

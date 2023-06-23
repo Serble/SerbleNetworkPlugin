@@ -1,6 +1,7 @@
 package net.serble.serblenetworkplugin.Schemas;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -29,6 +30,14 @@ public class SlashCommandArgument {
             return namedPlayer;
         }
         return uuidPlayer;
+    }
+
+    public OfflinePlayer getOfflinePlayer() {
+        if (text == null) return null;
+        try {
+            return Bukkit.getOfflinePlayer(UUID.fromString(text));
+        } catch (IllegalArgumentException ignored) { }
+        return Bukkit.getOfflinePlayer(text);
     }
 
     public Integer getInteger() {

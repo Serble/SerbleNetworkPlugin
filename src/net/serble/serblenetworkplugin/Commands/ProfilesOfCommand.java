@@ -4,7 +4,10 @@ import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
 import net.serble.serblenetworkplugin.PlayerUuidCacheHandler;
 import net.serble.serblenetworkplugin.ProfilePermissionsManager;
-import net.serble.serblenetworkplugin.Schemas.GameMode;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SlashCommand;
+import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,56 +18,69 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class ProfileCommand implements CommandExecutor, TabCompleter {
+public class ProfilesOfCommand implements CommandExecutor, TabCompleter {
 
+    // TODO: This function
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("You cannot do this!");
+        SlashCommand cmd = new UnprocessedCommand(sender, args)
+                .withPermission("serble.profiles.admin")
+                .withUsage("/profilesof <player> [copy] [profile]")
+                .withValidSenders(CommandSenderType.Player)
+                .process();
+
+        if (!cmd.isAllowed()) {
             return true;
         }
-
         Player p = (Player) sender;
 
-        if (!p.hasPermission("serble.profiles")) {
-            sender.sendMessage(Functions.translate("&cYou do not have permission!"));
+        OfflinePlayer target = cmd.getArg(0) == null ? null : cmd.getArg(0).getOfflinePlayer();
+        if (target == null) {
+            cmd.sendUsage("Invalid player");
             return true;
         }
 
         if (args.length == 0) {
             // Display current profile
-            UUID profile = PlayerUuidCacheHandler.getInstance().getPlayerUuid(p.getUniqueId());
+            UUID profile = PlayerUuidCacheHandler.getInstance().getPlayerUuid(target.getUniqueId());
             String profileName = Main.sqlData.getGameProfileName(profile);
             if (profileName == null) profileName = "default";
-
-            p.sendMessage(Functions.translate("&aActive Profile: &7" + profileName));
-            p.sendMessage(Functions.translate("&aYour profiles:"));
-            for (String userPfName : PlayerUuidCacheHandler.getInstance().getProfileList(p.getUniqueId())) {
+            p.sendMessage(Functions.translate("&a" + target.getName() + "'s Active Profile: &7" + profileName));
+            p.sendMessage(Functions.translate("&a" + target.getName() + "'s profiles:"));
+            for (String userPfName : PlayerUuidCacheHandler.getInstance().getProfileList(target.getUniqueId())) {
                 p.sendMessage(Functions.translate("&7- " + userPfName));
             }
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("add")) {
-            if (args.length != 2) {
-                p.sendMessage(Functions.translate("&cUsage: /profile add <profile>"));
+        if (args[1].equalsIgnoreCase("copy")) {
+            if (args.length != 3) {
+                p.sendMessage(Functions.translate("&cUsage: /profile <player> copy <profile>"));
                 return true;
             }
 
-            if (PlayerUuidCacheHandler.getInstance().getProfileList(p.getUniqueId()).size() >= 50) {
-                p.sendMessage(Functions.translate("&cYou cannot have more than 50 profiles!"));
+            String profileName = args[2];
+
+            UUID profile = Main.sqlData.getProfileIdFromName(target.getUniqueId(), profileName);
+            if (profile == null && !profileName.equalsIgnoreCase("default")) {
+                p.sendMessage(Functions.translate("&cProfile not found!"));
                 return true;
+            } else if (profileName.equalsIgnoreCase("default")) {
+                profile = target.getUniqueId();
             }
 
-            String profileName = args[1];
+            Main.worldGroupInventoryManager.savePlayerInventory(p);
+            ProfilePermissionsManager.removeAllPermissions(p);
 
-            Main.sqlData.createProfile(p.getUniqueId(), UUID.randomUUID(), profileName);
-            PlayerUuidCacheHandler.getInstance().invalidateProfileList(p.getUniqueId());
-            p.sendMessage(Functions.translate("&aProfile &7" + profileName + "&a added!"));
+            Main.sqlData.setActiveProfile(p.getUniqueId(), profile == target.getUniqueId() ? "0" : profile.toString());
+            PlayerUuidCacheHandler.getInstance().invalidatePlayerUuid(p.getUniqueId());
+            p.sendMessage(Functions.translate("&aProfile set to &7" + profileName + "&a!"));
+            Main.worldGroupInventoryManager.loadPlayerInventory(p);
+            ProfilePermissionsManager.loadPermissions(p);
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("set")) {
+        if (args[1].equalsIgnoreCase("set")) {
             if (args.length != 2) {
                 p.sendMessage(Functions.translate("&cUsage: /profile set <profile>"));
                 return true;

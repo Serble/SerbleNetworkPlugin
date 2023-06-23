@@ -55,6 +55,37 @@ public class Functions {
         return rankDisplay;
     }
 
+    public static String getPlayerRank(Player p, boolean ignoreNick) {
+        if (!Main.hasConfig) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    ConfigManager.RequestConfig(p);
+                }
+            }.runTaskLater(Main.plugin, 80L);
+            return "&2";
+        }
+
+
+        if (!ignoreNick) {
+            String rankName = Main.sqlData.getRankNick(GameProfileUtils.getPlayerUuid(p));
+            if (rankName != null) {
+                return rankName;
+            }
+        }
+
+        String rankName = "&1[&2Error Getting Rank&1]&2";
+
+        for (int i = 0; i < Main.config.Ranks.size(); i++) {
+            Rank rank = Main.config.Ranks.get(i);
+            if (p.hasPermission(rank.Permission)) {
+                rankName = rank.Name;
+            }
+        }
+
+        return rankName;
+    }
+
     public static String getPlayerRankDisplay(Player p) {
         return getPlayerRankDisplayB(p, false);
     }

@@ -17,7 +17,7 @@ public class ChatSudoCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         SlashCommand cmd = new UnprocessedCommand(sender, args)
                 .withPermission("serble.chatsudo")
-                .withUsage("&cUsage: /chatsudo <PLAYER> <MESSAGE>")
+                .withUsage("/chatsudo <PLAYER> <MESSAGE>")
                 .process();
         if (!cmd.isAllowed()) {
             return false;

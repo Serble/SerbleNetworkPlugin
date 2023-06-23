@@ -51,15 +51,21 @@ public class SlashCommand {
         return targets;
     }
 
+    public void sendUsage(String message) {
+        executor.sendMessage(Functions.translate("&c" + message + ". Usage: " + usage));
+    }
+
     public void sendUsage() {
-        executor.sendMessage(usage);
+        executor.sendMessage(Functions.translate("&cUsage: " + usage));
     }
 
     public String combineArgs(int start) {
+        if (start >= args.length) return "";
         StringBuilder builder = new StringBuilder();
         for (int i = start; i < args.length; i++) {
             builder.append(args[i].getText()).append(" ");
         }
+        if (builder.length() > 0) builder.deleteCharAt(builder.length() - 1);
         return builder.toString();
     }
 }

@@ -16,7 +16,6 @@ public class NickCmd implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
         if (!sender.hasPermission("serble.nick.self") && !sender.hasPermission("serble.nick.others")) {
             sender.sendMessage(Functions.translate("&cYou do not have permission!"));
             return true;

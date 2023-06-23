@@ -100,6 +100,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("serbledebug")).setExecutor(new SerbleDebugCommand());
         Objects.requireNonNull(this.getCommand("setspawnpoint")).setExecutor(new SetSpawnPointCommand());
         Objects.requireNonNull(this.getCommand("sysdebug")).setExecutor(new SystemDebugCommand());
+        Objects.requireNonNull(this.getCommand("givelobbyitems")).setExecutor(new GiveLobbyItemsCommand());
 
         // Tab completions
         Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());

@@ -33,3 +33,4 @@ commands:
   serbledebug:
   setspawnpoint:
   sysdebug:
+  givelobbyitems:

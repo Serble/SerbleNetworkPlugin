@@ -3,6 +3,8 @@ package net.serble.serblenetworkplugin.Commands;
 import net.serble.serblenetworkplugin.ExperienceManager;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.GameProfileUtils;
+import net.serble.serblenetworkplugin.Schemas.SlashCommand;
+import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -16,7 +18,12 @@ public class SerbleXpCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
+        SlashCommand cmd = new UnprocessedCommand(sender, args)
+                .withPermission("serble.economy")
+                .withUsage("&cUsage: /serblexp set USER AMOUNT")
+                .withUsage("&cUsage: /serblexp add USER AMOUNT")
+                .withUsage("&cUsage: /serblexp bal [USER]")
+                .process();
         if (!sender.hasPermission("serble.economy")) {
             sender.sendMessage(Functions.translate("&4You do not have permission to do this!"));
             return true;
@@ -26,7 +33,6 @@ public class SerbleXpCommand implements CommandExecutor {
         // serblexp balance [USER]
         // serblexp set USER AMOUNT
         // serblexp add USER AMOUNT
-
         if (args.length == 0) {
             sender.sendMessage(Functions.translate("&4Usage: /serblexp set USER AMOUNT"));
             sender.sendMessage(Functions.translate("&4Usage: /serblexp add USER AMOUNT"));

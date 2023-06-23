@@ -18,7 +18,7 @@ public class SetSpawnPointCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         SlashCommand command = new UnprocessedCommand(sender, args)
                 .withPermission("serble.setspawnpoint")
-                .withUsage("&cUsage: /setspawnpoint <user> <x> <y> <z> [world]")
+                .withUsage("/setspawnpoint <user> <x> <y> <z> [world]")
                 .process();
         if (!command.isAllowed()) {
             return false;
