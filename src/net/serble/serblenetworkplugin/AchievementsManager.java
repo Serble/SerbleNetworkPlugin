@@ -10,8 +10,7 @@ import org.bukkit.entity.Player;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 public class AchievementsManager {
 
@@ -32,6 +31,12 @@ public class AchievementsManager {
         put(Achievement.NUMBER1, 1);
         put(Achievement.BED_REMOVAL_SERVICE, 50);
         put(Achievement.TOUCH_GRASS, 1);
+        put(Achievement.NETHER_CONQUEROR, 1);
+        put(Achievement.OVERWORLD_MASTER, 1);
+        put(Achievement.NEO, 1);
+        put(Achievement.OBSIDIAN_HEART, 1);
+        put(Achievement.PRISON_ESCAPIST, 1);
+        put(Achievement.PARKOUR_DEDICATION, 100);
     }};
 
     // Achievement Proper Names
@@ -51,6 +56,12 @@ public class AchievementsManager {
         put(Achievement.NUMBER1, "#1");
         put(Achievement.BED_REMOVAL_SERVICE, "Bed Removal Service");
         put(Achievement.TOUCH_GRASS, "Touch Grass");
+        put(Achievement.NETHER_CONQUEROR, "Nether Conqueror");
+        put(Achievement.OVERWORLD_MASTER, "Overworld Master");
+        put(Achievement.NEO, "Neo");
+        put(Achievement.OBSIDIAN_HEART, "Obsidian Heart");
+        put(Achievement.PRISON_ESCAPIST, "Prison Escapist");
+        put(Achievement.PARKOUR_DEDICATION, "Parkour Dedication");
     }};
 
     // Achievement Descriptions
@@ -70,6 +81,12 @@ public class AchievementsManager {
         put(Achievement.NUMBER1, "Beat a global parkour record");
         put(Achievement.BED_REMOVAL_SERVICE, "Break 50 beds in BedWars");
         put(Achievement.TOUCH_GRASS, "Break some grass");
+        put(Achievement.NETHER_CONQUEROR, "Complete the parkour map Nether");
+        put(Achievement.OVERWORLD_MASTER, "Complete the parkour map Overworld");
+        put(Achievement.NEO, "Complete the parkour map Matrix");
+        put(Achievement.OBSIDIAN_HEART, "Complete the parkour map Obsidian");
+        put(Achievement.PRISON_ESCAPIST, "Complete the parkour map Prison");
+        put(Achievement.PARKOUR_DEDICATION, "Die 100 times in parkour");
     }};
 
 
@@ -137,7 +154,33 @@ public class AchievementsManager {
             add("sysgivemoney {player} 40 Achievement");
             add("sysgivexp {player} 80 Achievement");
         }});
+        put(Achievement.NETHER_CONQUEROR, new ArrayList<>() {{
+            add("sysgivemoney {player} 50 Achievement");
+            add("sysgivexp {player} 100 Achievement");
+        }});
+        put(Achievement.OVERWORLD_MASTER, new ArrayList<>() {{
+            add("sysgivemoney {player} 50 Achievement");
+            add("sysgivexp {player} 100 Achievement");
+        }});
+        put(Achievement.NEO, new ArrayList<>() {{
+            add("sysgivemoney {player} 100 Achievement");
+            add("sysgivexp {player} 200 Achievement");
+        }});
+        put(Achievement.OBSIDIAN_HEART, new ArrayList<>() {{
+            add("sysgivemoney {player} 25 Achievement");
+            add("sysgivexp {player} 50 Achievement");
+        }});
+        put(Achievement.PRISON_ESCAPIST, new ArrayList<>() {{
+            add("sysgivemoney {player} 100 Achievement");
+            add("sysgivexp {player} 200 Achievement");
+        }});
+        put(Achievement.PARKOUR_DEDICATION, new ArrayList<>() {{
+            add("sysgivemoney {player} 50 Achievement");
+            add("sysgivexp {player} 100 Achievement");
+        }});
     }};
+
+    private static final HashMap<UUID, HashMap<Achievement, Integer>> playerAchievementProgressCache = new HashMap<>();
 
     public static String generateMySqlFieldString() {
         StringBuilder str = new StringBuilder();
@@ -200,7 +243,7 @@ public class AchievementsManager {
     public static void GrantAchievementProgress(Player p, Achievement achievement, int progress) {
         Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, () -> {  // Enter async context because we are accessing the database
             int achievementLimit = AchievementProgressLimits.get(achievement);
-            int currentProgress = Main.sqlData.getAchievement(GameProfileUtils.getPlayerUuid(p), achievement);
+            int currentProgress = getPlayerProgress(GameProfileUtils.getPlayerUuid(p), achievement);
             if (currentProgress == achievementLimit) {
                 return;  // The achievement is already complete
             }
@@ -210,14 +253,60 @@ public class AchievementsManager {
                     CompletedAchievement(p, achievement);  // This needs to be run sync because it runs commands
                 });
                 Main.sqlData.setAchievement(GameProfileUtils.getPlayerUuid(p), achievement, achievementLimit);
+                ensurePlayerAchievementProgressLoaded(GameProfileUtils.getPlayerUuid(p));
+                playerAchievementProgressCache.get(GameProfileUtils.getPlayerUuid(p)).put(achievement, achievementLimit);
                 return;
             }
             Main.sqlData.setAchievement(GameProfileUtils.getPlayerUuid(p), achievement, currentProgress + progress);
+            ensurePlayerAchievementProgressLoaded(GameProfileUtils.getPlayerUuid(p));
+            playerAchievementProgressCache.get(GameProfileUtils.getPlayerUuid(p)).put(achievement, currentProgress + progress);
         });
     }
 
     public static void GrantAchievementProgress(Player p, Achievement achievement) {
         GrantAchievementProgress(p, achievement, 1);
+    }
+
+    private static void loadPlayerAchievementProgress(UUID profile) {
+        HashMap<Achievement, Integer> playerProgress = Main.sqlData.getAllPlayerAchievementProgress(profile);
+        playerAchievementProgressCache.put(profile, playerProgress);
+    }
+
+    public static void ensurePlayerAchievementProgressLoaded(UUID profile) {
+        if (!playerAchievementProgressCache.containsKey(profile)) {
+            loadPlayerAchievementProgress(profile);
+        }
+    }
+
+    public static void invalidatePlayerAchievementsCache(UUID profile) {
+        playerAchievementProgressCache.remove(profile);
+    }
+
+    public static List<Achievement> getPlayerCompletedAchievements(UUID profile) {
+        ensurePlayerAchievementProgressLoaded(profile);
+        List<Achievement> completedAchievements = new ArrayList<>();
+        for (Achievement a : Achievement.values()) {
+            if (Main.sqlData.getAchievement(profile, a) == AchievementProgressLimits.get(a)) {
+                completedAchievements.add(a);
+            }
+        }
+        return completedAchievements;
+    }
+
+    public static List<Achievement> getPlayerUncompletedAchievements(UUID profile) {
+        List<Achievement> completedAchievements = getPlayerCompletedAchievements(profile);
+        ArrayList<Achievement> uncompletedAchievements = new ArrayList<>();
+        for (Achievement a : Achievement.values()) {
+            if (!completedAchievements.contains(a)) {
+                uncompletedAchievements.add(a);
+            }
+        }
+        return uncompletedAchievements;
+    }
+
+    public static int getPlayerProgress(UUID profile, Achievement achievement) {
+        ensurePlayerAchievementProgressLoaded(profile);
+        return playerAchievementProgressCache.get(profile).get(achievement);
     }
 
 }

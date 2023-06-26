@@ -2,7 +2,6 @@ package net.serble.serblenetworkplugin.mysql;
 
 import net.serble.serblenetworkplugin.AchievementsManager;
 import net.serble.serblenetworkplugin.Main;
-import net.serble.serblenetworkplugin.ProfilePermissionsManager;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
 import net.serble.serblenetworkplugin.Schemas.PermissionSettings;
 import org.bukkit.Bukkit;
@@ -10,10 +9,7 @@ import org.bukkit.Bukkit;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class SQLGetter {
 
@@ -360,6 +356,26 @@ public class SQLGetter {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public HashMap<Achievement, Integer> getAllPlayerAchievementProgress(UUID uuid) {
+        checkConnect();
+        PreparedStatement ps;
+        HashMap<Achievement, Integer> achievements = new HashMap<>();
+
+        try {
+            ps = Main.plugin.SQL.getConnection().prepareStatement("SELECT * FROM serble_achievements WHERE UUID=?");
+            ps.setString(1, uuid.toString());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                for (Achievement achievement : Achievement.values()) {
+                    achievements.put(achievement, rs.getInt(achievement.toString()));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return achievements;
     }
 
 

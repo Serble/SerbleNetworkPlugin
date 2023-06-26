@@ -26,6 +26,7 @@ public class JoinLeave implements Listener {
 
         // Tell them their current profile
         String profileName = Main.sqlData.getGameProfileName(GameProfileUtils.getPlayerUuid(p));
+        if (profileName == null) profileName = "default";
         p.sendMessage(Functions.translate("&aActive profile: &7" + profileName));
     }
 

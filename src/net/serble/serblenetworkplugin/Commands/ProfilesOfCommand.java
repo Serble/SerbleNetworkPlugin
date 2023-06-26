@@ -40,7 +40,7 @@ public class ProfilesOfCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (args.length == 0) {
+        if (args.length == 1) {
             // Display current profile
             UUID profile = PlayerUuidCacheHandler.getInstance().getPlayerUuid(target.getUniqueId());
             String profileName = Main.sqlData.getGameProfileName(profile);
@@ -53,9 +53,9 @@ public class ProfilesOfCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (args[1].equalsIgnoreCase("copy")) {
+        if (cmd.getArgIgnoreNull(1).equalsIgnoreCase("copy")) {
             if (args.length != 3) {
-                p.sendMessage(Functions.translate("&cUsage: /profile <player> copy <profile>"));
+                cmd.sendUsage();
                 return true;
             }
 
@@ -72,41 +72,16 @@ public class ProfilesOfCommand implements CommandExecutor, TabCompleter {
             Main.worldGroupInventoryManager.savePlayerInventory(p);
             ProfilePermissionsManager.removeAllPermissions(p);
 
-            Main.sqlData.setActiveProfile(p.getUniqueId(), profile == target.getUniqueId() ? "0" : profile.toString());
-            PlayerUuidCacheHandler.getInstance().invalidatePlayerUuid(p.getUniqueId());
-            p.sendMessage(Functions.translate("&aProfile set to &7" + profileName + "&a!"));
-            Main.worldGroupInventoryManager.loadPlayerInventory(p);
-            ProfilePermissionsManager.loadPermissions(p);
-            return true;
-        }
-
-        if (args[1].equalsIgnoreCase("set")) {
-            if (args.length != 2) {
-                p.sendMessage(Functions.translate("&cUsage: /profile set <profile>"));
-                return true;
-            }
-
-            String profileName = args[1];
-
-            UUID profile = Main.sqlData.getProfileIdFromName(p.getUniqueId(), profileName);
-            if (profile == null && !profileName.equalsIgnoreCase("default")) {
-                p.sendMessage(Functions.translate("&cProfile not found!"));
-                return true;
-            } else if (profileName.equalsIgnoreCase("default")) {
-                profile = p.getUniqueId();
-            }
-
-            Main.worldGroupInventoryManager.savePlayerInventory(p);
-            ProfilePermissionsManager.removeAllPermissions(p);
-
             assert profile != null;
-            Main.sqlData.setActiveProfile(p.getUniqueId(), profile == p.getUniqueId() ? "0" : profile.toString());
+            Main.sqlData.setActiveProfile(p.getUniqueId(), profile.toString());
             PlayerUuidCacheHandler.getInstance().invalidatePlayerUuid(p.getUniqueId());
             p.sendMessage(Functions.translate("&aProfile set to &7" + profileName + "&a!"));
             Main.worldGroupInventoryManager.loadPlayerInventory(p);
             ProfilePermissionsManager.loadPermissions(p);
             return true;
         }
+
+        cmd.sendUsage();
         return false;
     }
 

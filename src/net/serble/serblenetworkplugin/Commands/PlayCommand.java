@@ -31,16 +31,20 @@ public class PlayCommand implements CommandExecutor, TabCompleter {
         for (GameMode gm : Main.config.GameModes) {
             if (!gm.Name.equalsIgnoreCase(args[0])) continue;
             if (!sender.hasPermission(gm.Permission)) {
-                sender.sendMessage(Functions.translate("&4You do not have permission!"));
+                sender.sendMessage(Functions.translate("&cYou do not have permission!"));
                 return true;
             }
 
-            if (!Main.partyService.canJoinGameAndAlertOrWarp((Player) sender)) {
-                return true;
+            if (gm.TriggersWarp) {
+                if (!Main.partyService.canJoinGameAndAlert((Player) sender)) {
+                    return true;
+                }
             }
 
             // Send them
             SVTPManager.sendPlayer((Player) sender, gm.Server, gm.World);
+
+            if (gm.TriggersWarp) Main.partyService.triggerWarp((Player) sender, true);
             return true;
         }
 

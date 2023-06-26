@@ -10,28 +10,43 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PartyManager implements PluginMessageListener, Listener {
     private final List<Party> parties = new ArrayList<>();
     private final HashMap<String, String> worldWarpMappings = new HashMap<>();
 
     public PartyManager() {
-        Main.plugin.getConfig().getConfigurationSection("warpworldmappings").getKeys(false).forEach(key -> {
+        Objects.requireNonNull(Main.plugin.getConfig().getConfigurationSection("warpworldmappings")).getKeys(false).forEach(key -> {
             String world = Main.plugin.getConfig().getString("warpworldmappings." + key);
             this.worldWarpMappings.put(key, world);
         });
     }
 
     @EventHandler
-    public void playerChangeWorldEvent(PlayerChangedWorldEvent e) {
+    public void playerDisconnect(PlayerQuitEvent e) {
+        Party party = getParty(e.getPlayer());
+        if (party == null) {
+            return;
+        }
 
+        // Are any of the members online?
+        boolean anyOnline = false;
+        for (UUID memberId : party.getMembers()) {
+            Player member = Main.plugin.getServer().getPlayer(memberId);
+            if (member != null) {
+                anyOnline = true;
+                break;
+            }
+        }
+
+        if (!anyOnline) {
+            // No members are online, delete the party from memory
+            parties.removeIf(p -> p.getLeader().toString().equals(party.getLeader().toString()));
+        }
     }
 
     @Override
@@ -111,12 +126,20 @@ public class PartyManager implements PluginMessageListener, Listener {
         return Main.plugin.getConfig().getBoolean("attempttopartywarp");
     }
 
-    public void sendWarpToBungee(Player leader) {
+    public void sendWarpToBungee(Player leader, boolean delayed) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("warp");
+        out.writeUTF(delayed ? "delayedwarp" : "warp");
         out.writeUTF(leader.getUniqueId().toString());
         DebugManager.getInstance().debug(leader, "You have triggered a party warp");
         leader.sendPluginMessage(Main.plugin, "serble:party", out.toByteArray());
+    }
+
+    public Party getParty(Player player) {
+        return parties.stream().filter(p -> p.isMember(player.getUniqueId()) || p.getLeader().equals(player.getUniqueId())).findFirst().orElse(null);
+    }
+
+    public List<Party> getParties() {
+        return parties;
     }
 
 }

@@ -1,15 +1,15 @@
 package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.AchievementsManager;
-import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
 import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 public class GrantAchievementProgressCommand implements CommandExecutor {
 
@@ -34,13 +34,13 @@ public class GrantAchievementProgressCommand implements CommandExecutor {
             return true;
         }
 
-        Player p = cmd.getArg(0) == null ? null : cmd.getArg(0).getPlayer();
+        List<Player> p = cmd.getArg(0) == null ? null : cmd.getArg(0).getPlayerList();
         if (p == null) {
             cmd.sendUsage("Invalid player");
             return true;
         }
 
-        AchievementsManager.GrantAchievementProgress(p, achievement, amount);
+        for (Player player : p) AchievementsManager.GrantAchievementProgress(player, achievement, amount);
         return true;
     }
 

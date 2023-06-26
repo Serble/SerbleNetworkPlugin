@@ -2,9 +2,10 @@ package net.serble.serblenetworkplugin.API;
 
 import net.serble.serblenetworkplugin.API.Schemas.WarpEvent;
 import net.serble.serblenetworkplugin.API.Schemas.WarpEventListener;
+import net.serble.serblenetworkplugin.DebugManager;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
-import org.bukkit.Bukkit;
+import net.serble.serblenetworkplugin.Schemas.Party;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -26,12 +27,23 @@ public class PartyService {
         return false;
     }
 
+    public void triggerWarp(Player leader, boolean delayed) {
+        // If they are not the leader of a party then return
+        Party party = Main.partyManager.getParty(leader);
+        if (party != null && party.getLeader() == leader.getUniqueId()) {
+            DebugManager.getInstance().debug(leader, "Ignoring warp request because you are not the leader of a party.");
+            return;
+        }
+
+        Main.partyManager.sendWarpToBungee(leader, delayed);
+    }
+
     public void triggerWarp(Player leader) {
-        Main.partyManager.sendWarpToBungee(leader);
+        triggerWarp(leader, false);
     }
 
     public void triggerDelayedWarp(Player leader) {
-        Bukkit.getScheduler().runTaskLater(Main.plugin, () -> Main.partyManager.sendWarpToBungee(leader), 20L);
+        triggerWarp(leader, true);
     }
 
     public boolean canJoinGame(Player player) {
@@ -51,7 +63,7 @@ public class PartyService {
         if (!canJoin) {
             return false;
         }
-        triggerWarp(player);
+        triggerWarp(player, false);
         return true;
     }
 
@@ -60,7 +72,7 @@ public class PartyService {
         if (!canJoin) {
             return false;
         }
-        triggerDelayedWarp(player);
+        triggerWarp(player, true);
         return true;
     }
 

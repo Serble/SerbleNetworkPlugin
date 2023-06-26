@@ -71,6 +71,7 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(worldGroupInventoryManager, this);
         Bukkit.getServer().getPluginManager().registerEvents(new ProfilePermissionsManager(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CacheInvalidationManager(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new AchievementsCommand(), this);
 
         // Register commands
         Objects.requireNonNull(this.getCommand("menu")).setExecutor(new MenuCommand());
@@ -101,6 +102,10 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("setspawnpoint")).setExecutor(new SetSpawnPointCommand());
         Objects.requireNonNull(this.getCommand("sysdebug")).setExecutor(new SystemDebugCommand());
         Objects.requireNonNull(this.getCommand("givelobbyitems")).setExecutor(new GiveLobbyItemsCommand());
+        Objects.requireNonNull(this.getCommand("nickas")).setExecutor(new NickAsCommand());
+        Objects.requireNonNull(this.getCommand("profileof")).setExecutor(new ProfilesOfCommand());
+        Objects.requireNonNull(this.getCommand("serbledump")).setExecutor(new SerbleDumpCommand());
+        Objects.requireNonNull(this.getCommand("achievements")).setExecutor(new AchievementsCommand());
 
         // Tab completions
         Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());

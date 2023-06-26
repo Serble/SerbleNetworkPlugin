@@ -21,6 +21,11 @@ public class SlashCommandArgument {
         return text;
     }
 
+    public boolean equalsIgnoreCase(String value) {
+        if (text == null) return false;
+        return text.equalsIgnoreCase(value);
+    }
+
     public Player getPlayer() {
         if (text == null) return null;
         Player namedPlayer = Bukkit.getPlayer(text);
