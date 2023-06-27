@@ -37,6 +37,9 @@ noflylobbys:
 noscoreboardlobbys:
   - parkour
 
+dontclearscoreboardworlds:
+  - parkour
+
 # MySQL Stuff
 serverurl: mysql.serble.net
 serverport: 3306

@@ -1,6 +1,6 @@
 package net.serble.serblenetworkplugin;
 
-import net.serble.serblenetworkplugin.Schemas.Rank;
+import net.serble.serblenetworkplugin.Schemas.Config.Rank;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class Functions {
 
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     public static String translate(String s) {
         return ChatColor.translateAlternateColorCodes('&', s);

@@ -117,4 +117,9 @@ public class SlashCommandArgument {
         return Bukkit.getWorld(text);
     }
 
+    public Boolean getBoolean() {
+        if (text == null) return null;
+        return text.equalsIgnoreCase("true");
+    }
+
 }

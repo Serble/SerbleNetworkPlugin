@@ -2,8 +2,8 @@ package net.serble.serblenetworkplugin;
 
 import com.google.gson.Gson;
 import net.serble.serblenetworkplugin.API.*;
-import net.serble.serblenetworkplugin.Schemas.*;
 import net.serble.serblenetworkplugin.Commands.*;
+import net.serble.serblenetworkplugin.Schemas.Config.*;
 import net.serble.serblenetworkplugin.mysql.MySQL;
 import net.serble.serblenetworkplugin.mysql.SQLGetter;
 import org.bukkit.Bukkit;
@@ -106,6 +106,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("profileof")).setExecutor(new ProfilesOfCommand());
         Objects.requireNonNull(this.getCommand("serbledump")).setExecutor(new SerbleDumpCommand());
         Objects.requireNonNull(this.getCommand("achievements")).setExecutor(new AchievementsCommand());
+        Objects.requireNonNull(this.getCommand("proxyexecute")).setExecutor(new ProxyExecuteCommand());
 
         // Tab completions
         Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());
@@ -115,6 +116,7 @@ public class Main extends JavaPlugin {
         // register plugin messaging channels
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "serble:serble");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "serble:serble", new ConfigManager());
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "serble:proxyexecute");
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "serble:party");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "serble:party", partyManager);
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "calcilator:svtp");

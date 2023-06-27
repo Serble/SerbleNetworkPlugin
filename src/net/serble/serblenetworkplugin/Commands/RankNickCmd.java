@@ -2,7 +2,7 @@ package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
-import net.serble.serblenetworkplugin.Schemas.Rank;
+import net.serble.serblenetworkplugin.Schemas.Config.Rank;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

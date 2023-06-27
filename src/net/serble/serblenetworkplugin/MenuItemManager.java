@@ -1,6 +1,6 @@
 package net.serble.serblenetworkplugin;
 
-import net.serble.serblenetworkplugin.Schemas.MenuItem;
+import net.serble.serblenetworkplugin.Schemas.Config.MenuItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;

@@ -2,7 +2,7 @@ package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.AchievementsManager;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
-import net.serble.serblenetworkplugin.Schemas.GameModeMenuItem;
+import net.serble.serblenetworkplugin.Schemas.Config.GameModeMenuItem;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
 import org.bukkit.Bukkit;
@@ -40,6 +40,7 @@ public class MenuCommand implements CommandExecutor, Listener {
             assert material != null;
             ItemStack stack = new ItemStack(material, 1);
             ItemMeta meta = stack.getItemMeta();
+            assert meta != null;
             if (!GameMode.equals("null")) {
                 List<String> lore = new ArrayList<>();
                 lore.add("GameMode:");
@@ -77,7 +78,7 @@ public class MenuCommand implements CommandExecutor, Listener {
         p.closeInventory();
         p.updateInventory();
 
-        Bukkit.dispatchCommand(p, "play " + lore.get(1));
+        Bukkit.dispatchCommand(p, "proxyexecute play " + lore.get(1));
     }
 
 }

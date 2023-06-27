@@ -2,7 +2,7 @@ package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.*;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
-import net.serble.serblenetworkplugin.Schemas.StoreItem;
+import net.serble.serblenetworkplugin.Schemas.Config.StoreItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

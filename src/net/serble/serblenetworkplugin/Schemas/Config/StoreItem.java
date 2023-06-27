@@ -1,4 +1,4 @@
-package net.serble.serblenetworkplugin.Schemas;
+package net.serble.serblenetworkplugin.Schemas.Config;
 
 import java.util.ArrayList;
 

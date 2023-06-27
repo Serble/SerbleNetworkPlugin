@@ -45,8 +45,11 @@ public class ScoreboardManager implements Listener {
                         if (!Main.plugin.getConfig().getStringList("worlds").contains(player.getWorld().getName()) ||
                                 Main.plugin.getConfig().getStringList("noscoreboardlobbys").contains(player.getWorld().getName())) {
                             if (!hasDeletedSSB) {
-                                player.setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
                                 hasDeletedSSB = true;
+                                if (Main.plugin.getConfig().getStringList("dontclearscoreboardworlds").contains(player.getWorld().getName())) {
+                                    return;
+                                }
+                                player.setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
                             }
                             return;
                         }

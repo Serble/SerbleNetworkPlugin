@@ -1,56 +1,56 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.Schemas.GameMode;
-import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
-import net.serble.serblenetworkplugin.SVTPManager;
+import net.serble.serblenetworkplugin.Schemas.Config.GameMode;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlayCommand implements CommandExecutor, TabCompleter {
 
+    // THIS HAS BEEN REPLACED BY BUNGEECORD
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("Only players can do this");
-            return true;
-        }
-
-        if (args.length == 0) {
-            Bukkit.dispatchCommand(sender, "lob");
-            return true;
-        }
-
-        for (GameMode gm : Main.config.GameModes) {
-            if (!gm.Name.equalsIgnoreCase(args[0])) continue;
-            if (!sender.hasPermission(gm.Permission)) {
-                sender.sendMessage(Functions.translate("&cYou do not have permission!"));
-                return true;
-            }
-
-            if (gm.TriggersWarp) {
-                if (!Main.partyService.canJoinGameAndAlert((Player) sender)) {
-                    return true;
-                }
-            }
-
-            // Send them
-            SVTPManager.sendPlayer((Player) sender, gm.Server, gm.World);
-
-            if (gm.TriggersWarp) Main.partyService.triggerWarp((Player) sender, true);
-            return true;
-        }
-
-        Bukkit.dispatchCommand(sender, "lob");
+        String argsString = String.join(" ", args);
+        Bukkit.dispatchCommand(sender, "proxyexecute play " + argsString);
         return true;
-
+//        if (!(sender instanceof Player)) {
+//            sender.sendMessage("Only players can do this");
+//            return true;
+//        }
+//
+//        if (args.length == 0) {
+//            Bukkit.dispatchCommand(sender, "lob");
+//            return true;
+//        }
+//
+//        for (GameMode gm : Main.config.GameModes) {
+//            if (!gm.Name.equalsIgnoreCase(args[0])) continue;
+//            if (!sender.hasPermission(gm.Permission)) {
+//                sender.sendMessage(Functions.translate("&cYou do not have permission!"));
+//                return true;
+//            }
+//
+//            if (gm.TriggersWarp) {
+//                if (!Main.partyService.canJoinGameAndAlert((Player) sender)) {
+//                    return true;
+//                }
+//            }
+//
+//            // Send them
+//            SVTPManager.sendPlayer((Player) sender, gm.Server, gm.World);
+//
+//            if (gm.TriggersWarp) Main.partyService.triggerWarp((Player) sender, true);
+//            return true;
+//        }
+//
+//        Bukkit.dispatchCommand(sender, "lob");
+//        return true;
     }
 
     @Override
