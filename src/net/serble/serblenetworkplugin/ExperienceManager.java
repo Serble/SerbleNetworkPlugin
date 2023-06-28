@@ -11,7 +11,7 @@ public class ExperienceManager {
     private static final HashMap<UUID, Integer> xpCache = new HashMap<>();
 
     public static int getXp(Player p) {
-        return Main.sqlData.getXp(GameProfileUtils.getPlayerUuid(p));
+        return getSerbleXp(GameProfileUtils.getPlayerUuid(p));
     }
 
     public static int getLevel(int xp) {

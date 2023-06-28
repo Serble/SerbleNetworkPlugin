@@ -31,7 +31,7 @@ public class Functions {
 
 
         if (!ignoreNick) {
-            String rankName = Main.sqlData.getRankNick(GameProfileUtils.getPlayerUuid(p));
+            String rankName = NicknameManager.getRankNick(p.getUniqueId());
 
             if (rankName != null) {
                 for (int i = 0; i < Main.config.Ranks.size(); i++) {
@@ -68,7 +68,7 @@ public class Functions {
 
 
         if (!ignoreNick) {
-            String rankName = Main.sqlData.getRankNick(GameProfileUtils.getPlayerUuid(p));
+            String rankName = NicknameManager.getRankNick(p.getUniqueId());
             if (rankName != null) {
                 return rankName;
             }

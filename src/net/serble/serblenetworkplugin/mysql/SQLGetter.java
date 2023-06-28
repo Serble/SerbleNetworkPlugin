@@ -1,6 +1,7 @@
 package net.serble.serblenetworkplugin.mysql;
 
 import net.serble.serblenetworkplugin.AchievementsManager;
+import net.serble.serblenetworkplugin.Commands.MySqlLogCommand;
 import net.serble.serblenetworkplugin.Main;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
 import net.serble.serblenetworkplugin.Schemas.PermissionSettings;
@@ -13,10 +14,16 @@ import java.util.*;
 
 public class SQLGetter {
 
+    private void log(String msg) {
+        if (!MySqlLogCommand.enabled) return;
+        Bukkit.getLogger().info("[MYSQL] " + msg);
+    }
+
     private void checkConnect() {
         try {
             Main.plugin.SQL.connect();
         } catch (SQLException | ClassNotFoundException e) {
+            log("&cCould not connect to MySQL database!");
             e.printStackTrace();
         }
     }
@@ -70,6 +77,7 @@ public class SQLGetter {
     }
 
     public void createPlayerEco(UUID p) {
+        log("Creating player eco for " + p.toString());
         try {
 
             if (existsInEco(p)) return;
@@ -85,6 +93,7 @@ public class SQLGetter {
     }
 
     public void createPlayerXp(UUID p) {
+        log("Creating player xp for " + p.toString());
         try {
 
             if (existsInXp(p)) return;
@@ -100,6 +109,7 @@ public class SQLGetter {
     }
 
     public void createPlayerNick(UUID p) {
+        log("Creating player nick for " + p.toString());
         try {
 
             if (existsInNicks(p)) return;
@@ -115,6 +125,7 @@ public class SQLGetter {
     }
 
     public void createPlayerAdminMode(UUID p) {
+        log("Creating player admin mode for " + p.toString());
         try {
 
             if (existsInAdminMode(p)) return;
@@ -130,6 +141,7 @@ public class SQLGetter {
     }
 
     public void createPlayerDebugToggle(UUID p) {
+        log("Creating player debug toggle for " + p.toString());
         try {
 
             if (existsInDebugToggles(p)) return;
@@ -146,6 +158,7 @@ public class SQLGetter {
     }
 
     public void createPlayerAchievements(UUID p) {
+        log("Creating player achievements for " + p.toString());
         try {
 
             if (existsInAchievements(p)) return;
@@ -160,6 +173,7 @@ public class SQLGetter {
     }
 
     public void createPlayerUserProfile(UUID p) {
+        log("Creating player user profile for " + p.toString());
         try {
 
             if (existsInUserProfiles(p)) return;
@@ -175,6 +189,7 @@ public class SQLGetter {
 
 
     public void setProfilePermission(UUID p, String node, boolean value) {
+        log("Setting profile permission for " + p.toString() + " node: " + node + " value: " + value);
         unsetProfilePermission(p, node);
         try {
             PreparedStatement ps = Main.plugin.SQL.getConnection().prepareStatement("INSERT IGNORE INTO serble_profile_permissions" +
@@ -189,6 +204,7 @@ public class SQLGetter {
     }
 
     public void unsetProfilePermission(UUID p, String node) {
+        log("Unsetting profile permission for " + p.toString() + " node: " + node);
         try {
             PreparedStatement ps = Main.plugin.SQL.getConnection().prepareStatement("DELETE FROM serble_profile_permissions" +
                     " WHERE UUID=? AND NODE=?;");
@@ -201,6 +217,7 @@ public class SQLGetter {
     }
 
     public List<PermissionSettings> getProfilePermissions(UUID p) {
+        log("Getting profile permissions for " + p.toString());
         List<PermissionSettings> permissions = new ArrayList<>();
 
         try {
@@ -222,6 +239,7 @@ public class SQLGetter {
 
 
     public void addMoney(UUID uuid, int amount) {
+        log("Adding money to " + uuid.toString() + " amount: " + amount);
         checkConnect();
         PreparedStatement ps;
 
@@ -237,6 +255,7 @@ public class SQLGetter {
     }
 
     public void setMoney(UUID uuid, int amount) {
+        log("Setting money for " + uuid.toString() + " amount: " + amount);
         checkConnect();
         PreparedStatement ps;
 
@@ -252,6 +271,7 @@ public class SQLGetter {
     }
 
     public int getMoney(UUID uuid) {
+        log("Getting money for " + uuid.toString());
         checkConnect();
         PreparedStatement ps;
 
@@ -273,6 +293,7 @@ public class SQLGetter {
 
 
     public void addXp(UUID uuid, int amount) {
+        log("Adding xp to " + uuid.toString() + " amount: " + amount);
         checkConnect();
         PreparedStatement ps;
 
@@ -288,6 +309,7 @@ public class SQLGetter {
     }
 
     public void setXp(UUID uuid, int amount) {
+        log("Setting xp for " + uuid.toString() + " amount: " + amount);
         checkConnect();
         PreparedStatement ps;
 
@@ -303,6 +325,7 @@ public class SQLGetter {
     }
 
     public int getXp(UUID uuid) {
+        log("Getting xp for " + uuid.toString());
         checkConnect();
         PreparedStatement ps;
 
@@ -324,6 +347,7 @@ public class SQLGetter {
 
 
     public void setAchievement(UUID uuid, Achievement achievement, int progress) {
+        log("Setting achievement for " + uuid.toString() + " achievement: " + achievement.toString() + " progress: " + progress);
         checkConnect();
         PreparedStatement ps;
 
@@ -339,6 +363,7 @@ public class SQLGetter {
     }
 
     public int getAchievement(UUID uuid, Achievement achievement) {
+        log("Getting achievement for " + uuid.toString() + " achievement: " + achievement.toString());
         checkConnect();
         PreparedStatement ps;
 
@@ -359,6 +384,7 @@ public class SQLGetter {
     }
 
     public HashMap<Achievement, Integer> getAllPlayerAchievementProgress(UUID uuid) {
+        log("Getting all achievements for " + uuid.toString());
         checkConnect();
         PreparedStatement ps;
         HashMap<Achievement, Integer> achievements = new HashMap<>();
@@ -380,6 +406,7 @@ public class SQLGetter {
 
 
     public boolean existsInEco(UUID uuid) {
+        log("Checking if " + uuid.toString() + " exists in economy");
         checkConnect();
         PreparedStatement ps;
 
@@ -395,6 +422,7 @@ public class SQLGetter {
     }
 
     public boolean existsInXp(UUID uuid) {
+        log("Checking if " + uuid.toString() + " exists in xp");
         checkConnect();
         PreparedStatement ps;
 
@@ -410,6 +438,7 @@ public class SQLGetter {
     }
 
     public boolean existsInNicks(UUID uuid) {
+        log("Checking if " + uuid.toString() + " exists in nicks");
         checkConnect();
         PreparedStatement ps;
 
@@ -425,6 +454,7 @@ public class SQLGetter {
     }
 
     public boolean existsInAdminMode(UUID uuid) {
+        log("Checking if " + uuid.toString() + " exists in admin mode");
         checkConnect();
         PreparedStatement ps;
 
@@ -440,6 +470,7 @@ public class SQLGetter {
     }
 
     public boolean existsInDebugToggles(UUID uuid) {
+        log("Checking if " + uuid.toString() + " exists in debug toggles");
         checkConnect();
         PreparedStatement ps;
 
@@ -455,6 +486,7 @@ public class SQLGetter {
     }
 
     public boolean existsInAchievements(UUID uuid) {
+        log("Checking if " + uuid.toString() + " exists in achievements");
         checkConnect();
         PreparedStatement ps;
 
@@ -470,6 +502,7 @@ public class SQLGetter {
     }
 
     public boolean existsInUserProfiles(UUID uuid) {
+        log("Checking if " + uuid.toString() + " exists in user profiles");
         checkConnect();
         PreparedStatement ps;
 
@@ -485,6 +518,7 @@ public class SQLGetter {
     }
 
     public boolean existsInProfiles(String name) {
+        log("Checking if " + name + " exists in profiles");
         checkConnect();
         PreparedStatement ps;
 
@@ -501,6 +535,7 @@ public class SQLGetter {
 
 
     public void setNick(UUID uuid, String name) {
+        log("Setting " + uuid.toString() + "'s nickname to " + name);
         checkConnect();
         PreparedStatement ps;
 
@@ -515,6 +550,7 @@ public class SQLGetter {
         }
     }
     public void setNickSkin(UUID uuid, String skin) {
+        log("Setting " + uuid.toString() + "'s nickname skin to " + skin);
         checkConnect();
         PreparedStatement ps;
 
@@ -530,6 +566,7 @@ public class SQLGetter {
     }
 
     public void setRankNick(UUID uuid, String name) {
+        log("Setting " + uuid.toString() + "'s rank nickname to " + name);
         checkConnect();
         PreparedStatement ps;
 
@@ -545,6 +582,7 @@ public class SQLGetter {
     }
 
     public String getNick(UUID uuid) {
+        log("Getting " + uuid.toString() + "'s nickname");
         checkConnect();
         PreparedStatement ps;
 
@@ -564,6 +602,7 @@ public class SQLGetter {
         return null;
     }
     public String getNickSkin(UUID uuid) {
+        log("Getting " + uuid.toString() + "'s nickname skin");
         checkConnect();
         PreparedStatement ps;
 
@@ -584,6 +623,7 @@ public class SQLGetter {
     }
 
     public String getRankNick(UUID uuid) {
+        log("Getting " + uuid.toString() + "'s rank nickname");
         checkConnect();
         PreparedStatement ps;
 
@@ -605,6 +645,7 @@ public class SQLGetter {
 
 
     public boolean getAdminMode(UUID uuid) {
+        log("Getting " + uuid.toString() + "'s admin mode");
         checkConnect();
         PreparedStatement ps;
 
@@ -625,6 +666,7 @@ public class SQLGetter {
     }
 
     public void setAdminMode(UUID uuid, boolean name) {
+        log("Setting " + uuid.toString() + "'s admin mode to " + name);
         checkConnect();
         PreparedStatement ps;
 
@@ -641,6 +683,7 @@ public class SQLGetter {
 
 
     public boolean getDebugToggle(UUID uuid) {
+        log("Getting " + uuid.toString() + "'s debug toggle");
         checkConnect();
         PreparedStatement ps;
 
@@ -661,6 +704,7 @@ public class SQLGetter {
     }
 
     public void setDebugToggle(UUID uuid, boolean name) {
+        log("Setting " + uuid.toString() + "'s debug toggle to " + name);
         checkConnect();
         PreparedStatement ps;
 
@@ -677,6 +721,7 @@ public class SQLGetter {
 
 
     public void setActiveProfile(UUID uuid, String profile) {
+        log("Setting " + uuid.toString() + "'s active profile to " + profile);
         checkConnect();
         PreparedStatement ps;
 
@@ -692,6 +737,7 @@ public class SQLGetter {
     }
 
     public UUID getActiveUuid(UUID uuid) {
+        log("Getting " + uuid.toString() + "'s active profile");
         checkConnect();
         PreparedStatement ps;
 
@@ -713,6 +759,7 @@ public class SQLGetter {
     }
 
     public String getGameProfileName(UUID uuid) {
+        log("Getting " + uuid.toString() + "'s game profile name");
         checkConnect();
         PreparedStatement ps;
 
@@ -733,6 +780,7 @@ public class SQLGetter {
 
     // uuid of profile, mojang uuid of user, profile name UUID VARCHAR(36), MOJANGUSER VARCHAR(36), PROFILENAME VARCHAR(64),
     public void createProfile(UUID owner, UUID profileId, String name) {
+        log("Creating profile " + name + " for " + owner.toString());
         try {
 
             if (existsInProfiles(name)) return;
@@ -749,6 +797,7 @@ public class SQLGetter {
     }
 
     public List<String> listUserProfiles(UUID owner) {
+        log("Listing profiles for " + owner.toString());
         checkConnect();
         PreparedStatement ps;
 
@@ -770,6 +819,7 @@ public class SQLGetter {
     }
 
     public UUID getProfileIdFromName(UUID owner, String name) {
+        log("Getting profile id for " + name + " for " + owner.toString());
         checkConnect();
         PreparedStatement ps;
 
@@ -790,6 +840,7 @@ public class SQLGetter {
     }
 
     public UUID getMojangUserFromProfile(UUID profile) {
+        log("Getting mojang user for " + profile.toString());
         checkConnect();
         PreparedStatement ps;
 

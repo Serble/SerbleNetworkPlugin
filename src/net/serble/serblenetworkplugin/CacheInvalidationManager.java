@@ -15,6 +15,7 @@ public class CacheInvalidationManager implements Listener {
         MoneyCacheManager.invalidateCacheForPlayer(playerUuid);
         AdminModeCacheHandler.invalidateCacheForPlayer(playerUuid);
         AchievementsManager.invalidatePlayerAchievementsCache(playerUuid);
+        NicknameManager.invalidateCache(e.getPlayer().getUniqueId());
     }
 
 }

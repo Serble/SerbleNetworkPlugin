@@ -286,7 +286,7 @@ public class AchievementsManager {
         ensurePlayerAchievementProgressLoaded(profile);
         List<Achievement> completedAchievements = new ArrayList<>();
         for (Achievement a : Achievement.values()) {
-            if (Main.sqlData.getAchievement(profile, a) == AchievementProgressLimits.get(a)) {
+            if (Objects.equals(playerAchievementProgressCache.get(profile).get(a), AchievementProgressLimits.get(a))) {
                 completedAchievements.add(a);
             }
         }

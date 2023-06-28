@@ -107,6 +107,8 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("serbledump")).setExecutor(new SerbleDumpCommand());
         Objects.requireNonNull(this.getCommand("achievements")).setExecutor(new AchievementsCommand());
         Objects.requireNonNull(this.getCommand("proxyexecute")).setExecutor(new ProxyExecuteCommand());
+        Objects.requireNonNull(this.getCommand("mysqllog")).setExecutor(new MySqlLogCommand());
+        Objects.requireNonNull(this.getCommand("ping")).setExecutor(new PingCommand());
 
         // Tab completions
         Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());

@@ -6,10 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import xyz.haoshoku.nick.api.NickAPI;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class NicknameManager implements Listener {
 
@@ -93,6 +90,7 @@ public class NicknameManager implements Listener {
     }};
 
     private static final Random random = new Random();
+    private static final HashMap<UUID, String> rankNicknames = new HashMap<>();
 
     public static void updateName(Player p) {
         UUID playerId = GameProfileUtils.getPlayerUuid(p);
@@ -115,7 +113,7 @@ public class NicknameManager implements Listener {
         UUID playerUuid = GameProfileUtils.getPlayerUuid(p);
         Functions.runAsync(() -> {
             Main.sqlData.setNick(playerUuid, null);
-            Main.sqlData.setRankNick(playerUuid, null);
+            setRankNick(playerUuid, null);
             Main.sqlData.setNickSkin(playerUuid, null);
         });  // That's too many mysql queries to run on the main thread
         NickAPI.resetNick(p);
@@ -131,7 +129,7 @@ public class NicknameManager implements Listener {
         UUID userId = GameProfileUtils.getPlayerUuid(p);
         Main.sqlData.setNick(userId, name);  // These need to finish before updateName is called or else updateName won't get the correct name
         if (!Objects.equals(rank, "")) {
-            Main.sqlData.setRankNick(userId, rank);
+            setRankNick(userId, rank);
         }
         if (!Objects.equals(skin, "")) {
             Main.sqlData.setNickSkin(userId, skin);
@@ -149,6 +147,22 @@ public class NicknameManager implements Listener {
 
     public static String randomSkin() {
         return skins.get(random.nextInt(skins.size()));
+    }
+
+    public static String getRankNick(UUID uuid) {
+        if (!rankNicknames.containsKey(uuid)) {
+            rankNicknames.put(uuid, Main.sqlData.getRankNick(uuid));
+        }
+        return rankNicknames.get(uuid);
+    }
+
+    public static void setRankNick(UUID uuid, String rankNick) {
+        rankNicknames.put(uuid, rankNick);
+        Main.sqlData.setRankNick(uuid, rankNick);
+    }
+
+    public static void invalidateCache(UUID uuid) {
+        rankNicknames.remove(uuid);
     }
 
 }

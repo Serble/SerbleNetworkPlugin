@@ -39,3 +39,5 @@ commands:
   serbledump:
   achievements:
   proxyexecute:
+  mysqllog:
+  ping:

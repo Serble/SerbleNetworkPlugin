@@ -58,14 +58,12 @@ public class PartyManager implements PluginMessageListener, Listener {
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subChannel = in.readUTF();
 
-        boolean fullWarp = false;
         switch (subChannel) {
             default:
                 DebugManager.getInstance().debug(player, "&cReceived unknown subchannel for serble:party: " + subChannel);
                 break;
 
             case "fullwarp":
-                fullWarp = true;
             case "warp":
                 if (!isWarpEnabled()) {
                     return;
@@ -97,23 +95,36 @@ public class PartyManager implements PluginMessageListener, Listener {
                 member.teleport(world.getSpawnLocation());
                 break;
 
-            case "update":
+            case "update": {
                 // Deserialize party
                 Party party = Party.deserialize(in.readUTF());
                 DebugManager.getInstance().debug(player, "&rReceived party update for " + party.getLeader() + "'s party.");
 
                 // If it exists, remove it
-                parties.removeIf(p -> p.getLeader().equals(party.getLeader()));
+                boolean replacedExisting = parties.removeIf(p -> p.getLeader().equals(party.getLeader()));
                 parties.add(party);
-                break;
 
-            case "delete":
-                String leaderId = in.readUTF();
-                parties.removeIf(p -> p.getLeader().toString().equals(leaderId));
+                Player leaderPlayer = Bukkit.getPlayer(party.getLeader());
+                if (leaderPlayer != null) {
+                    DebugManager.getInstance().debug(player, "Received party update for your party. Replaced existing: " + replacedExisting);
+                }
                 break;
+            }
+
+            case "delete": {
+                String leaderId = in.readUTF();
+                boolean removed = parties.removeIf(p -> p.getLeader().toString().equals(leaderId));
+
+                Player leaderPlayer = Bukkit.getPlayer(UUID.fromString(leaderId));
+                if (leaderPlayer != null) {
+                    DebugManager.getInstance().debug(leaderPlayer, "Received delete request from proxy for your party. Removed: " + removed);
+                }
+                break;
+            }
 
             case "reset":
                 parties.clear();
+                DebugManager.getInstance().serverDebug("Proxy sent party cache clear request.");
                 break;
         }
     }
