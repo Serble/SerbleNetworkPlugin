@@ -1,9 +1,6 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.Functions;
-import net.serble.serblenetworkplugin.Main;
-import net.serble.serblenetworkplugin.PlayerUuidCacheHandler;
-import net.serble.serblenetworkplugin.ProfilePermissionsManager;
+import net.serble.serblenetworkplugin.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -84,7 +81,7 @@ public class ProfileCommand implements CommandExecutor, TabCompleter {
 
             assert profile != null;
             Main.sqlData.setActiveProfile(p.getUniqueId(), profile == p.getUniqueId() ? "0" : profile.toString());
-            PlayerUuidCacheHandler.getInstance().invalidatePlayerUuid(p.getUniqueId());
+            CacheInvalidationManager.invalidateUuidCachesForPlayer(p.getUniqueId());
             p.sendMessage(Functions.translate("&aProfile set to &7" + profileName + "&a!"));
             Main.worldGroupInventoryManager.loadPlayerInventory(p);
             ProfilePermissionsManager.loadPermissions(p);

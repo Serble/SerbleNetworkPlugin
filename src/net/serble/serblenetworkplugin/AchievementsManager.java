@@ -269,6 +269,12 @@ public class AchievementsManager {
 
     private static void loadPlayerAchievementProgress(UUID profile) {
         HashMap<Achievement, Integer> playerProgress = Main.sqlData.getAllPlayerAchievementProgress(profile);
+        if (playerProgress == null) {
+            playerProgress = new HashMap<>();
+            for (Achievement a : Achievement.values()) {
+                playerProgress.put(a, 0);
+            }
+        }
         playerAchievementProgressCache.put(profile, playerProgress);
     }
 
@@ -306,7 +312,8 @@ public class AchievementsManager {
 
     public static int getPlayerProgress(UUID profile, Achievement achievement) {
         ensurePlayerAchievementProgressLoaded(profile);
-        return playerAchievementProgressCache.get(profile).get(achievement);
+        Integer val = playerAchievementProgressCache.get(profile).get(achievement);
+        return val == null ? 0 : val;
     }
 
 }

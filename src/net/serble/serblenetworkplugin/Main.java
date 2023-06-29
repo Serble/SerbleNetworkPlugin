@@ -69,6 +69,7 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new NicknameManager(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CustomAchievements(), this);
         Bukkit.getServer().getPluginManager().registerEvents(worldGroupInventoryManager, this);
+        Bukkit.getServer().getPluginManager().registerEvents(partyManager, this);
         Bukkit.getServer().getPluginManager().registerEvents(new ProfilePermissionsManager(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CacheInvalidationManager(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new AchievementsCommand(), this);

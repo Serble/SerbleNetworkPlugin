@@ -1,9 +1,6 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.Functions;
-import net.serble.serblenetworkplugin.Main;
-import net.serble.serblenetworkplugin.PlayerUuidCacheHandler;
-import net.serble.serblenetworkplugin.ProfilePermissionsManager;
+import net.serble.serblenetworkplugin.*;
 import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
 import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
@@ -74,7 +71,7 @@ public class ProfilesOfCommand implements CommandExecutor, TabCompleter {
 
             assert profile != null;
             Main.sqlData.setActiveProfile(p.getUniqueId(), profile.toString());
-            PlayerUuidCacheHandler.getInstance().invalidatePlayerUuid(p.getUniqueId());
+            CacheInvalidationManager.invalidateUuidCachesForPlayer(p.getUniqueId());
             p.sendMessage(Functions.translate("&aProfile set to &7" + profileName + "&a!"));
             Main.worldGroupInventoryManager.loadPlayerInventory(p);
             ProfilePermissionsManager.loadPermissions(p);
