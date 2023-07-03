@@ -81,6 +81,9 @@ public class LobbyManager implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
+
+        if (!isLobby(player)) return;
+
         Material blockBelow = player.getLocation().subtract(0, 1, 0).getBlock().getType();
 
         if (blockBelow == Material.SLIME_BLOCK) {

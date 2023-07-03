@@ -15,7 +15,9 @@ public class GameProfileUtils {
     }
 
     public static UUID getPlayerFromProfile(UUID profile) {
-        return PlayerUuidCacheHandler.getInstance().getPlayerFromProfile(profile);
+        UUID id = PlayerUuidCacheHandler.getInstance().getPlayerFromProfile(profile);
+        if (id == null) return profile;
+        return id;
     }
 
 }
