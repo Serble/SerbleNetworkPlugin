@@ -7,37 +7,120 @@ softdepend: [PlaceholderAPI]
 
 commands:
   menu:
-  lob:
-  hub:
-  lobby:
+    description: Opens the game menu
+    usage: /menu
+    aliases:
+      - hub
+      - lob
+      - lobby
   adminmode:
+    description: Toggles admin mode
+    usage: /adminmode
   spawn:
+    description: Teleports you to spawn in worlds that support it
+    usage: /spawn
   cosmetic:
+    description: Opens the cosmetic menu
+    usage: /cosmetic
   ranknick:
+    description: Sets your displayed rank (DEPRECATED)
+    usage: /ranknick <RANK>
   nick:
+    permission: serble.nick
+    description: Sets your nickname, supply no arguments for a random identity.
+    usage: /nick [USER] [NICKNAME] [RANK] [SKIN]
   unnick:
+    permission: serble.nick
+    description: Removes your nickname
+    usage: /unnick
   build:
+    permission: serble.build
+    description: Runs /rg bypass
+    usage: /build
   reloadconfig:
+    permission: serble.reloadconfig
+    description: Reloads the YAML config and requests the JSON config from BungeeCord again.
+    usage: /reloadconfig
   money:
+    permission: serble.money
+    description: Manages the Serble economy.
+    usage: /money <balance/set/add> [USER] [AMOUNT]
   store:
-  shop:
+    description: Opens the store menu
+    usage: /store
+    aliases:
+      - shop
   sysgivemoney:
+    permission: serble.sysgivemoney
+    description: Gives a user money.
+    usage: /sysgivemoney <USER> <AMOUNT>
   play:
-  goto:
+    description: Sends you to a game mode.
+    usage: /play <GAME>
+    aliases:
+      - goto
   chatsudo:
+    permission: serble.chatsudo
+    description: Sends a message as another user.
+    usage: /chatsudo <USER> <MESSAGE>
   serblexp:
+    permission: serble.serblexp
+    description: Manage Serble XP.
+    usage: /serblexp <balance/set/add> [USER] [AMOUNT]
   sysgivexp:
+    permission: serble.sysgivexp
+    description: Gives a user Serble XP.
+    usage: /sysgivexp <USER> <AMOUNT>
   grantachievementprogress:
+    permission: serble.grantachievementprogress
+    description: Grants a user progress on an achievement.
+    usage: /grantachievementprogress <USER> <ACHIEVEMENT> <AMOUNT>
   profile:
+    description: Manages your game profiles.
+    usage: /profile [set/add] [PROFILE NAME]
   profileperms:
+    description: Manages game profile permissions for users.
+    permission: serble.permissions
+    usage: /profileperms <set/unset> <player> <permission node> [true/false]
   serbledebug:
+    description: Toggles debug mode.
+    permission: serble.debug
+    usage: /serbledebug
   setspawnpoint:
+    description: Sets a user's spawn point for the current world group.
+    permission: serble.setspawnpoint
+    usage: /setspawnpoint <user> [x] [y] [z] [world]
   sysdebug:
+    description: Sends a debug message to all players with debug mode enabled.
+    permission: serble.sysdebug
+    usage: /sysdebug <MESSAGE>
   givelobbyitems:
+    description: Gives a user the lobby items.
+    permission: serble.givelobbyitems
+    usage: /givelobbyitems <USER>
   nickas:
+    description: Disguises you as a user.
+    permission: serble.nickas
+    usage: /nickas <USER>
   profileof:
+    description: Gets the profile of a user.
+    permission: serble.profileof
+    usage: /profilesof <PLAYER> [copy] [PROFILE NAME]
   serbledump:
+    description: Dumps certain information.
+    permission: serble.serbledump
+    usage: /serbledump <DATASET>
   achievements:
+    description: Opens the achievements menu.
+    usage: /achievements
   proxyexecute:
+    description: Executes a command on the proxy.
+    permission: serble.proxyexecute
+    usage: /proxyexecute <COMMAND>
   mysqllog:
+    description: Toggles enhanced logging of MySQL queries.
+    permission: serble.mysqllog
+    usage: /mysqllog
   ping:
+    description: Displays the ping of a user.
+    usage: /ping [USER]

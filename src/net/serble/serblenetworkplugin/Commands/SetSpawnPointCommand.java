@@ -1,41 +1,36 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.*;
+import net.serble.serblenetworkplugin.FancyCommands;
+import net.serble.serblenetworkplugin.GameProfileUtils;
+import net.serble.serblenetworkplugin.Main;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletePlayerResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompleteWorldResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class SetSpawnPointCommand implements CommandExecutor {
+public class SetSpawnPointCommand extends SerbleCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        SlashCommand command = new UnprocessedCommand(sender, args)
-                .withPermission("serble.setspawnpoint")
-                .withUsage("/setspawnpoint <user> <x> <y> <z> [world]")
-                .process();
-        if (!command.isAllowed()) {
-            return false;
-        }
-
-        List<Player> players = command.getArgIgnoreNull(0).getPlayerList();
+    public void execute(SlashCommand cmd) {
+        List<Player> players = cmd.getArgIgnoreNull(0).getPlayerList();
         if (players == null) {
-            command.sendUsage();
-            return true;
+            cmd.sendUsage();
+            return;
         }
 
-        Integer x = command.getArgIgnoreNull(1).getInteger();
-        Integer y = command.getArgIgnoreNull(2).getInteger();
-        Integer z = command.getArgIgnoreNull(3).getInteger();
-        World world = command.getArgIgnoreNull(4).getWorld();
+        Integer x = cmd.getArgIgnoreNull(1).getInteger();
+        Integer y = cmd.getArgIgnoreNull(2).getInteger();
+        Integer z = cmd.getArgIgnoreNull(3).getInteger();
+        World world = cmd.getArgIgnoreNull(4).getWorld();
 
-        Location senderLocation = FancyCommands.getLocationOfCommandSender(sender);
+        Location senderLocation = FancyCommands.getLocationOfCommandSender(cmd.getExecutor());
 
         if (x == null || y == null || z == null) {
             x = senderLocation.getBlockX();
@@ -46,8 +41,8 @@ public class SetSpawnPointCommand implements CommandExecutor {
         if (world == null) {
             world = senderLocation.getWorld();
             if (world == null) {
-                sender.sendMessage(Functions.translate("&cConsole users must specify a world!"));
-                return true;
+                cmd.sendError("Console users must specify a world!");
+                return;
             }
         }
 
@@ -55,12 +50,23 @@ public class SetSpawnPointCommand implements CommandExecutor {
         for (Player player : players) {
             String worldGroup = Main.worldGroupInventoryManager.getPlayerWorldGroup(player);
             if (worldGroup == null) {
-                sender.sendMessage(Functions.translate("&cPlayer " + player.getName() + " is not in a world group!"));
+                cmd.sendError("Player " + player.getName() + " is not in a world group!");
                 continue;
             }
             Main.worldGroupInventoryManager.setPlayerCurrentSpawnPoint(GameProfileUtils.getPlayerUuid(player), worldGroup, location);
-            sender.sendMessage(Functions.translate("&aSet spawn point for " + player.getName() + " to " + location + " in world group " + worldGroup));
+            cmd.send("&aSet spawn point for " + player.getName() + " to " + location + " in world group " + worldGroup);
         }
-        return true;
+    }
+
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return new TabCompletionBuilder(cmd.getArgs())
+                .setCase(new TabCompletePlayerResult())
+                .setCase(new TabCompleteWorldResult(), null, null, null, null);
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return ALL_SENDERS;
     }
 }

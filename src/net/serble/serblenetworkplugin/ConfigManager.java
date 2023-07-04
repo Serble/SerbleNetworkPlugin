@@ -10,15 +10,26 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
-public class ConfigManager implements PluginMessageListener {
+import java.util.PriorityQueue;
+import java.util.Queue;
 
-    public static void RequestConfig(Player p) {
+public class ConfigManager implements PluginMessageListener {
+    private static Queue<Runnable> queuedTasks = new PriorityQueue<>();
+    private static boolean configRequested = false;
+
+    public static void requestConfig(Player p) {
+        requestConfig(p, false);
+    }
+
+    public static void requestConfig(Player p, boolean ignoreCache) {
+        if (configRequested && !ignoreCache) return;
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("config");
         out.writeUTF(p.getName());
 
         Main.plugin.getLogger().info("Sending request for config...");
         p.sendPluginMessage(Main.plugin, "serble:serble", out.toByteArray());
+        configRequested = true;
     }
 
     @Override
@@ -45,6 +56,25 @@ public class ConfigManager implements PluginMessageListener {
             for (GameMode mode : Main.config.GameModes) {
                 Main.plugin.getLogger().info("Discovered GameMode: " + mode.Name);
             }
+            executeTasks();
+        }
+    }
+
+    private static void executeTasks() {
+        if (queuedTasks == null) {
+            return;
+        }
+        while (!queuedTasks.isEmpty()) {
+            queuedTasks.poll().run();
+        }
+        queuedTasks = null;
+    }
+
+    public static void runTaskAfterConfig(Runnable runnable) {
+        if (queuedTasks == null) {
+            runnable.run();
+        } else {
+            queuedTasks.add(runnable);
         }
     }
 

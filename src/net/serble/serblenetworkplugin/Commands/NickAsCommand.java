@@ -3,31 +3,21 @@ package net.serble.serblenetworkplugin.Commands;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.NicknameManager;
 import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletePlayerResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class NickAsCommand implements CommandExecutor {
+public class NickAsCommand extends SerbleCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        SlashCommand cmd = new UnprocessedCommand(sender, args)
-                .withPermission("serble.becomeplayer")
-                .withUsage("/nickas <player>")
-                .withValidSenders(CommandSenderType.Player)
-                .process();
-        if (!cmd.isAllowed()) {
-            return true;
-        }
-
+    public void execute(SlashCommand cmd) {
         OfflinePlayer target = cmd.getArg(0) == null ? null : cmd.getArg(0).getOfflinePlayer();
         if (target == null) {
             cmd.sendUsage("Invalid player");
-            return true;
+            return;
         }
 
         String rank = "default";
@@ -35,10 +25,18 @@ public class NickAsCommand implements CommandExecutor {
             rank = Functions.getPlayerRank((Player) target, true);
         }
 
-        NicknameManager.nick((Player) sender, target.getName(), rank, target.getName());
-
-        sender.sendMessage(Functions.translate("&aYou are now nicked as &7" + target.getName()));
-        return true;
+        NicknameManager.nick(cmd.getPlayerExecutor(), target.getName(), rank, target.getName());
+        cmd.send("&aYou are now nicked as &7" + target.getName());
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return new TabCompletionBuilder(cmd.getArgs())
+                .setCase(new TabCompletePlayerResult());
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return PLAYER_SENDER;
+    }
 }

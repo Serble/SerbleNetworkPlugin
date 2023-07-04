@@ -4,13 +4,11 @@ import net.serble.serblenetworkplugin.AchievementsManager;
 import net.serble.serblenetworkplugin.GameProfileUtils;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
 import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,18 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class AchievementsCommand implements CommandExecutor, Listener {
+public class AchievementsCommand extends SerbleCommand implements Listener {
+
+    @EventHandler
+    public void onInvClick(InventoryClickEvent e) {
+        if (e.getView().getTitle().contains("Achievements")) e.setCancelled(true);
+    }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        SlashCommand cmd = new UnprocessedCommand(sender, args)
-                .withValidSenders(CommandSenderType.Player)
-                .process();
-        if (!cmd.isAllowed()) {
-            return true;
-        }
-
-        Player p = (Player) sender;
+    public void execute(SlashCommand cmd) {
+        Player p = cmd.getPlayerExecutor();
         UUID profile = GameProfileUtils.getPlayerUuid(p);
         Inventory inv = p.getServer().createInventory(null, 9 * 6, "Achievements");
 
@@ -74,12 +70,15 @@ public class AchievementsCommand implements CommandExecutor, Listener {
         }
 
         p.openInventory(inv);
-        return true;
     }
 
-    @EventHandler
-    public void onInvClick(InventoryClickEvent e) {
-        if (e.getView().getTitle().contains("Achievements")) e.setCancelled(true);
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return null;
     }
 
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return PLAYER_SENDER;
+    }
 }

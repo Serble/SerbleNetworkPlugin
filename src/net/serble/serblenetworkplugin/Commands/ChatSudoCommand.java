@@ -1,45 +1,45 @@
 package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.Chat;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommandArgument;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletePlayerResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class ChatSudoCommand implements CommandExecutor {
+public class ChatSudoCommand extends SerbleCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        SlashCommand cmd = new UnprocessedCommand(sender, args)
-                .withPermission("serble.chatsudo")
-                .withUsage("/chatsudo <PLAYER> <MESSAGE>")
-                .process();
-        if (!cmd.isAllowed()) {
-            return false;
-        }
-
+    public void execute(SlashCommand cmd) {
         SlashCommandArgument playerArg = cmd.getArg(0);
         if (playerArg == null) {
             cmd.sendUsage();
-            return true;
+            return;
         }
 
         List<Player> p = playerArg.getPlayerList();
         if (p == null) {
             cmd.sendUsage();
-            return true;
+            return;
         }
         String msg = cmd.combineArgs(1);
 
         for (Player player : p) {
-            Chat.FakeChat(player, msg);
+            Chat.fakeChat(player, msg);
         }
-        return true;
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return new TabCompletionBuilder(cmd.getArgs()).setCase(new TabCompletePlayerResult());
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return ALL_SENDERS;
+    }
 }

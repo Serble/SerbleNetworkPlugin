@@ -2,46 +2,53 @@ package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.AchievementsManager;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompleteEnumResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletePlayerResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
 import java.util.List;
 
-public class GrantAchievementProgressCommand implements CommandExecutor {
+public class GrantAchievementProgressCommand extends SerbleCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        SlashCommand cmd = new UnprocessedCommand(sender, args)
-                .withPermission("serble.grantachievement")
-                .withUsage("/grantachievementprogress <PLAYER> <ACHIEVEMENT> <PROGRESS>")
-                .process();
-
+    public void execute(SlashCommand cmd) {
         Achievement achievement;
         try {
-            achievement = Achievement.valueOf(args[1]);
+            achievement = Achievement.valueOf(cmd.getArg(1).getText());
         } catch (IllegalArgumentException e) {
             cmd.sendUsage("Invalid achievement");
-            return true;
+            return;
         }
 
         Integer amount = cmd.getArg(2) == null ? null : cmd.getArg(2).getInteger();
         if (amount == null) {
             cmd.sendUsage("Invalid progress amount");
-            return true;
+            return;
         }
 
         List<Player> p = cmd.getArg(0) == null ? null : cmd.getArg(0).getPlayerList();
         if (p == null) {
             cmd.sendUsage("Invalid player");
-            return true;
+            return;
         }
 
         for (Player player : p) AchievementsManager.GrantAchievementProgress(player, achievement, amount);
-        return true;
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return new TabCompletionBuilder(cmd.getArgs())
+                .setCase(new TabCompletePlayerResult())
+                .setCase(new TabCompleteEnumResult(Arrays.stream(Achievement.values()).map(Enum::name).toArray(String[]::new)), (String) null);
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return ALL_SENDERS;
+    }
 }

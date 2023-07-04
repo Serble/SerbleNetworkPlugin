@@ -1,39 +1,39 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.Functions;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletePlayerResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.entity.Player;
 
-public class PingCommand implements CommandExecutor {
+public class PingCommand extends SerbleCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        SlashCommand cmd = new UnprocessedCommand(sender, args)
-                .withUsage("/ping [player]")
-                .process();
-
-        if (!cmd.isAllowed()) {
-            return true;
-        }
-
+    public void execute(SlashCommand cmd) {
         Player target = cmd.getArgIgnoreNull(0).getPlayer();
         if (target != null) {
-            sender.sendMessage(Functions.translate("&aPing of " + sender.getName() + ": &7" + ((Player) sender).getPing() + "ms"));
-            return true;
+            cmd.send("&aPing of " + target.getName() + ": &7" + target.getPing() + "ms");
+            return;
         }
 
-        if (!(sender instanceof Player)) {
-            cmd.sendUsage("Only players can do this");
-            return true;
+        if (cmd.getSenderType() != CommandSenderType.Player) {
+            cmd.sendError("Only players can do this");
+            return;
         }
 
-        Player player = (Player) sender;
-        sender.sendMessage(Functions.translate("&aPing: &7" + player.getPing() + "ms"));
-        return true;
+        Player player = cmd.getPlayerExecutor();
+        cmd.send("&aPing: &7" + player.getPing() + "ms");
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return new TabCompletionBuilder(cmd.getArgs())
+                .setCase(new TabCompletePlayerResult());
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return ALL_SENDERS;
+    }
 }

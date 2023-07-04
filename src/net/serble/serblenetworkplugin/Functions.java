@@ -15,6 +15,10 @@ public class Functions {
         return ChatColor.translateAlternateColorCodes('&', s);
     }
 
+    public static void sendNoConfigMessage(Player p) {
+        p.sendMessage(translate("&cPlease try again later!"));
+    }
+
     public static String getPlayerRankDisplayB(Player p, boolean ignoreNick) {
 
         if (!Main.hasConfig) {
@@ -22,7 +26,7 @@ public class Functions {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    ConfigManager.RequestConfig(p);
+                    ConfigManager.requestConfig(p);
                 }
             }.runTaskLater(Main.plugin, 80L);
 
@@ -60,7 +64,7 @@ public class Functions {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    ConfigManager.RequestConfig(p);
+                    ConfigManager.requestConfig(p);
                 }
             }.runTaskLater(Main.plugin, 80L);
             return "&2";

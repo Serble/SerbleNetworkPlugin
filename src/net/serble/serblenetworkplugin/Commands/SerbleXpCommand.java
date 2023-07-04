@@ -1,172 +1,97 @@
 package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.ExperienceManager;
-import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.GameProfileUtils;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
-import org.bukkit.Bukkit;
+import net.serble.serblenetworkplugin.Schemas.SlashCommandArgument;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompleteEnumResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletePlayerResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class SerbleXpCommand implements CommandExecutor {
+public class SerbleXpCommand extends SerbleCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        SlashCommand cmd = new UnprocessedCommand(sender, args)
-                .withPermission("serble.economy")
-                .withUsage("&cUsage: /serblexp set USER AMOUNT")
-                .withUsage("&cUsage: /serblexp add USER AMOUNT")
-                .withUsage("&cUsage: /serblexp bal [USER]")
-                .process();
-        if (!sender.hasPermission("serble.economy")) {
-            sender.sendMessage(Functions.translate("&4You do not have permission to do this!"));
-            return true;
-        }
-
+    public void execute(SlashCommand cmd) {
         //          0   1    2
         // serblexp balance [USER]
         // serblexp set USER AMOUNT
         // serblexp add USER AMOUNT
-        if (args.length == 0) {
-            sender.sendMessage(Functions.translate("&4Usage: /serblexp set USER AMOUNT"));
-            sender.sendMessage(Functions.translate("&4Usage: /serblexp add USER AMOUNT"));
-            sender.sendMessage(Functions.translate("&4Usage: /serblexp bal [USER]"));
-            return false;
-        }
-
-        if (args[0].equalsIgnoreCase("set")) {
-            if (args.length != 3) {
-                sender.sendMessage(Functions.translate("&4Usage: /serblexp set USER AMOUNT"));
-                return false;
+        SlashCommandArgument firstArg = cmd.getArgIgnoreNull(0);
+        if (firstArg.equalsIgnoreCase("set")) {
+            OfflinePlayer p = cmd.getArg(1).getOfflinePlayer();
+            if (p == null) {
+                cmd.sendUsage("Invalid player");
+                return;
             }
+            UUID uuid = GameProfileUtils.getPlayerUuid(p.getUniqueId());
 
-            Player p;
-            OfflinePlayer p2;
-            UUID uuid;
-            try {
-                p = Bukkit.getPlayer(args[1]);
-                if (p == null) throw new NullPointerException("Player is null");
-                uuid = GameProfileUtils.getPlayerUuid(p);
-            } catch (Exception e) {
-                // invalid player
-                // noinspection deprecation (This is the only way so shuttup java)
-                p2 = Bukkit.getOfflinePlayer(args[1]);
-                if (p2.hasPlayedBefore()) {
-                    sender.sendMessage(Functions.translate
-                            ("&7&lWARNING: &r&7Obtaining offline player through depreciated method! This is not recommended"));
-                    uuid = GameProfileUtils.getPlayerUuid(p2.getUniqueId());
-                } else {
-                    sender.sendMessage(Functions.translate("&4That is not a valid player name! Usage: /serblexp set USER AMOUNT"));
-                    return false;
-                }
-            }
-
-            int value;
-            try {
-                value = Integer.parseInt(args[2]);
-            } catch (Exception e) {
-                // invalid number
-                sender.sendMessage(Functions.translate("&4That is not a valid integer! Usage: /serblexp set USER AMOUNT"));
-                return false;
+            Integer value = cmd.getArg(2).getInteger();
+            if (value == null) {
+                cmd.sendUsage("Invalid number");
+                return;
             }
 
             ExperienceManager.setSerbleXp(uuid, value);
-            sender.sendMessage(Functions.translate(String.format("&aSet %s's XP to &7" + value, args[1])));
-            return true;
+            cmd.send(String.format("&aSet %s's XP to &7" + value, p.getName()));
+            return;
         }
 
-        if (args[0].equalsIgnoreCase("add")) {
-            if (args.length != 3) {
-                sender.sendMessage(Functions.translate("&4Usage: /serblexp add USER AMOUNT"));
-                return false;
+        if (firstArg.equalsIgnoreCase("add")) {
+            OfflinePlayer p = cmd.getArg(1).getOfflinePlayer();
+            if (p == null) {
+                cmd.sendUsage("Invalid player");
+                return;
             }
+            UUID uuid = GameProfileUtils.getPlayerUuid(p.getUniqueId());
 
-            Player p;
-            OfflinePlayer p2;
-            UUID uuid;
-            try {
-                p = Bukkit.getPlayer(args[1]);
-                if (p == null) throw new NullPointerException("Player is null");
-                uuid = GameProfileUtils.getPlayerUuid(p);
-            } catch (Exception e) {
-                // invalid player
-                // noinspection deprecation (This is the only way so shuttup java)
-                p2 = Bukkit.getOfflinePlayer(args[1]);
-                if (p2.hasPlayedBefore()) {
-                    sender.sendMessage(Functions.translate
-                            ("&7&lWARNING: &r&7Obtaining offline player through depreciated method! This is not recommended"));
-                    uuid = GameProfileUtils.getPlayerUuid(p2.getUniqueId());
-                } else {
-                    sender.sendMessage(Functions.translate("&4That is not a valid player name! Usage: /serblexp set USER AMOUNT"));
-                    return false;
-                }
-            }
-
-            int value;
-            try {
-                value = Integer.parseInt(args[2]);
-            } catch (Exception e) {
-                // invalid number
-                sender.sendMessage(Functions.translate("&4That is not a valid integer! Usage: /serblexp add USER AMOUNT"));
-                return false;
+            Integer value = cmd.getArg(2).getInteger();
+            if (value == null) {
+                cmd.sendUsage("Invalid number");
+                return;
             }
 
             ExperienceManager.addSerbleXp(uuid, value);
-            sender.sendMessage(Functions.translate(String.format("&aAdded &7" + value + "&a to %s's balance ", args[1])));
-            return true;
+            cmd.send(String.format("&aAdded &7" + value + "&a to %s's balance ", p.getName()));
+            return;
         }
 
-        if (args[0].equalsIgnoreCase("balance") || args[0].equalsIgnoreCase("bal")) {
-            if (sender instanceof Player) {
-                if (args.length == 1) {
-                    int bal = ExperienceManager.getSerbleXp(GameProfileUtils.getPlayerUuid((Player) sender));
-                    sender.sendMessage(Functions.translate("&aBalance: &7" + bal));
-                    return true;
-                }
+        if (firstArg.equalsIgnoreCase("balance") || firstArg.equalsIgnoreCase("bal")) {
+            if (cmd.getSenderType() == CommandSenderType.Player && cmd.getArgs().length == 1) {
+                int bal = ExperienceManager.getSerbleXp(GameProfileUtils.getPlayerUuid(cmd.getPlayerExecutor()));
+                cmd.send("&aBalance: &7" + bal);
+                return;
             }
-            if (args.length != 2) {
-                sender.sendMessage(Functions.translate("&4Usage: /serblexp balance USER or /serblexp balance"));
-                return false;
+            OfflinePlayer p = cmd.getArg(1).getOfflinePlayer();
+            if (p == null) {
+                cmd.sendUsage("Invalid player");
+                return;
             }
-            Player p = null;
-            OfflinePlayer p2 = null;
-            UUID uuid;
-            try {
-                p = Bukkit.getPlayer(args[1]);
-                if (p == null) throw new NullPointerException("Player is null");
-                uuid = GameProfileUtils.getPlayerUuid(p);
-            } catch (Exception e) {
-                // invalid player
-                // noinspection deprecation (This is the only way so shuttup java)
-                p2 = Bukkit.getOfflinePlayer(args[1]);
-                if (p2.hasPlayedBefore()) {
-                    sender.sendMessage(Functions.translate
-                            ("&7&lWARNING: &r&7Obtaining offline player through depreciated method! This is not recommended"));
-                    uuid = GameProfileUtils.getPlayerUuid(p2.getUniqueId());
-                } else {
-                    sender.sendMessage(Functions.translate("&4That is not a valid player name! Usage: /serblexp set USER AMOUNT"));
-                    return false;
-                }
-            }
+            UUID uuid = GameProfileUtils.getPlayerUuid(p.getUniqueId());
 
             int bal = ExperienceManager.getSerbleXp(uuid);
-            String name;
-            if (p == null) {
-                name = p2.getName();
-            } else {
-                name = p.getName();
-            }
-            sender.sendMessage(Functions.translate(String.format("&aXP of %s: &7" + bal, name)));
-            return true;
+            cmd.send(String.format("&aXP of %s: &7" + bal, p.getName()));
+            return;
         }
-
-        return false;
+        cmd.sendUsage();
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return new TabCompletionBuilder(cmd.getArgs())
+                .setCase(new TabCompleteEnumResult("set", "add", "balance", "bal"))
+                .setCase(new TabCompletePlayerResult(), "set")
+                .setCase(new TabCompletePlayerResult(), "add")
+                .setCase(new TabCompletePlayerResult(), "balance")
+                .setCase(new TabCompletePlayerResult(), "bal");
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return ALL_SENDERS;
+    }
 }

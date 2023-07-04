@@ -4,26 +4,17 @@ import net.serble.serblenetworkplugin.AdminModeCacheHandler;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
 import net.serble.serblenetworkplugin.MenuItemManager;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
+import net.serble.serblenetworkplugin.Schemas.SlashCommand;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.entity.Player;
 
-public class AdminMode implements CommandExecutor {
+public class AdminMode extends SerbleCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("You cannot do this!");
-            return true;
-        }
-
-        Player p = (Player) sender;
-
-        if (!p.hasPermission("serble.adminmode")) {
-            sender.sendMessage(Functions.translate("&4You do not have permission!"));
-            return true;
-        }
+    public void execute(SlashCommand cmd) {
+        Player p = cmd.getPlayerExecutor();
 
         // We are going to save the player's inventory before we clear it
         // Inventories should never be saved while in admin mode
@@ -35,14 +26,22 @@ public class AdminMode implements CommandExecutor {
             if (!MenuItemManager.shouldNotGetItems(p)) {
                 MenuItemManager.GiveMenuItems(p);  // Give lobby items to player if in the lobby
             }
-            sender.sendMessage(Functions.translate("&bAdmin Mode has been &4&lDisabled"));
+            p.sendMessage(Functions.translate("&bAdmin Mode has been &4&lDisabled"));
         } else {
             Main.worldGroupInventoryManager.savePlayerInventory(p);
             AdminModeCacheHandler.setAdminMode(p.getUniqueId(), true);
             p.getInventory().clear();
-            sender.sendMessage(Functions.translate("&bAdmin Mode has been &2&lEnabled"));
+            p.sendMessage(Functions.translate("&bAdmin Mode has been &2&lEnabled"));
         }
-        return false;
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return EMPTY_TAB_COMPLETE;
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return getArrayOfSenders(CommandSenderType.Player);
+    }
 }

@@ -2,7 +2,10 @@ package net.serble.serblenetworkplugin;
 
 import com.google.gson.Gson;
 import net.serble.serblenetworkplugin.API.*;
-import net.serble.serblenetworkplugin.Commands.*;
+import net.serble.serblenetworkplugin.Commands.AchievementsCommand;
+import net.serble.serblenetworkplugin.Commands.CommandHandler;
+import net.serble.serblenetworkplugin.Commands.MenuCommand;
+import net.serble.serblenetworkplugin.Commands.StoreCommand;
 import net.serble.serblenetworkplugin.Schemas.Config.*;
 import net.serble.serblenetworkplugin.mysql.MySQL;
 import net.serble.serblenetworkplugin.mysql.SQLGetter;
@@ -14,7 +17,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 public class Main extends JavaPlugin {
 
@@ -75,48 +77,10 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new AchievementsCommand(), this);
 
         // Register commands
-        Objects.requireNonNull(this.getCommand("menu")).setExecutor(new MenuCommand());
-        Objects.requireNonNull(this.getCommand("lob")).setExecutor(new MenuCommand());
-        Objects.requireNonNull(this.getCommand("hub")).setExecutor(new MenuCommand());
-        Objects.requireNonNull(this.getCommand("lobby")).setExecutor(new MenuCommand());
-        Objects.requireNonNull(this.getCommand("adminmode")).setExecutor(new AdminMode());
-        Objects.requireNonNull(this.getCommand("spawn")).setExecutor(new SpawnCmd());
-        Objects.requireNonNull(this.getCommand("cosmetic")).setExecutor(new CosmeticCmd());
-        Objects.requireNonNull(this.getCommand("ranknick")).setExecutor(new RankNickCmd());
-        Objects.requireNonNull(this.getCommand("nick")).setExecutor(new NickCmd());
-        Objects.requireNonNull(this.getCommand("unnick")).setExecutor(new UnnickCmd());
-        Objects.requireNonNull(this.getCommand("build")).setExecutor(new BuildCmd());
-        Objects.requireNonNull(this.getCommand("reloadconfig")).setExecutor(new ReloadConfigCommand());
-        Objects.requireNonNull(this.getCommand("money")).setExecutor(new MoneyCommand());
-        Objects.requireNonNull(this.getCommand("store")).setExecutor(new StoreCommand());
-        Objects.requireNonNull(this.getCommand("shop")).setExecutor(new StoreCommand());
-        Objects.requireNonNull(this.getCommand("sysgivemoney")).setExecutor(new SystemGiveMoney());
-        Objects.requireNonNull(this.getCommand("play")).setExecutor(new PlayCommand());
-        Objects.requireNonNull(this.getCommand("goto")).setExecutor(new PlayCommand());
-        Objects.requireNonNull(this.getCommand("chatsudo")).setExecutor(new ChatSudoCommand());
-        Objects.requireNonNull(this.getCommand("serblexp")).setExecutor(new SerbleXpCommand());
-        Objects.requireNonNull(this.getCommand("sysgivexp")).setExecutor(new SystemGiveXp());
-        Objects.requireNonNull(this.getCommand("grantachievementprogress")).setExecutor(new GrantAchievementProgressCommand());
-        Objects.requireNonNull(this.getCommand("profile")).setExecutor(new ProfileCommand());
-        Objects.requireNonNull(this.getCommand("profileperms")).setExecutor(new ProfilePermissionsCommands());
-        Objects.requireNonNull(this.getCommand("serbledebug")).setExecutor(new SerbleDebugCommand());
-        Objects.requireNonNull(this.getCommand("setspawnpoint")).setExecutor(new SetSpawnPointCommand());
-        Objects.requireNonNull(this.getCommand("sysdebug")).setExecutor(new SystemDebugCommand());
-        Objects.requireNonNull(this.getCommand("givelobbyitems")).setExecutor(new GiveLobbyItemsCommand());
-        Objects.requireNonNull(this.getCommand("nickas")).setExecutor(new NickAsCommand());
-        Objects.requireNonNull(this.getCommand("profileof")).setExecutor(new ProfilesOfCommand());
-        Objects.requireNonNull(this.getCommand("serbledump")).setExecutor(new SerbleDumpCommand());
-        Objects.requireNonNull(this.getCommand("achievements")).setExecutor(new AchievementsCommand());
-        Objects.requireNonNull(this.getCommand("proxyexecute")).setExecutor(new ProxyExecuteCommand());
-        Objects.requireNonNull(this.getCommand("mysqllog")).setExecutor(new MySqlLogCommand());
-        Objects.requireNonNull(this.getCommand("ping")).setExecutor(new PingCommand());
+        new CommandHandler().registerCommands();
+        Bukkit.getLogger().info("Commands registered!");
 
-        // Tab completions
-        Objects.requireNonNull(this.getCommand("ranknick")).setTabCompleter(new RankNickCmd());
-        Objects.requireNonNull(this.getCommand("play")).setTabCompleter(new PlayCommand());
-        Objects.requireNonNull(this.getCommand("profile")).setTabCompleter(new ProfileCommand());
-
-        // register plugin messaging channels
+        // Register plugin messaging channels
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "serble:serble");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "serble:serble", new ConfigManager());
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "serble:proxyexecute");
@@ -138,7 +102,7 @@ public class Main extends JavaPlugin {
             boolean didRequestConfig = false;
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (!didRequestConfig) {
-                    ConfigManager.RequestConfig(p);
+                    ConfigManager.requestConfig(p);
                     didRequestConfig = true;
                 }
                 if (p.hasPermission("serble.staff")) {

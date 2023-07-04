@@ -1,0 +1,134 @@
+package net.serble.serblenetworkplugin.Commands;
+
+import net.serble.serblenetworkplugin.Functions;
+import net.serble.serblenetworkplugin.Main;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
+import net.serble.serblenetworkplugin.Schemas.SlashCommand;
+import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
+import org.bukkit.command.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+
+public class CommandHandler implements CommandExecutor, TabCompleter {
+    private final HashMap<String, SerbleCommand> commands = new HashMap<>();
+
+    public void registerCommands() {
+        registerCommand("menu", new MenuCommand());
+        registerCommand("adminmode", new AdminMode());
+        registerCommand("spawn", new SpawnCmd());
+        registerCommand("cosmetic", new CosmeticCmd());
+        registerCommand("ranknick", new RankNickCmd());
+        registerCommand("nick", new NickCmd());
+        registerCommand("unnick", new UnnickCmd());
+        registerCommand("build", new BuildCmd());
+        registerCommand("reloadconfig", new ReloadConfigCommand());
+        registerCommand("money", new MoneyCommand());
+        registerCommand("store", new StoreCommand());
+        registerCommand("sysgivemoney", new SystemGiveMoney());
+        registerCommand("play", new PlayCommand());
+        registerCommand("chatsudo", new ChatSudoCommand());
+        registerCommand("serblexp", new SerbleXpCommand());
+        registerCommand("sysgivexp", new SystemGiveXp());
+        registerCommand("grantachievementprogress", new GrantAchievementProgressCommand());
+        registerCommand("profile", new ProfileCommand());
+        registerCommand("profileperms", new ProfilePermissionsCommands());
+        registerCommand("serbledebug", new SerbleDebugCommand());
+        registerCommand("setspawnpoint", new SetSpawnPointCommand());
+        registerCommand("sysdebug", new SystemDebugCommand());
+        registerCommand("givelobbyitems", new GiveLobbyItemsCommand());
+        registerCommand("nickas", new NickAsCommand());
+        registerCommand("profileof", new ProfilesOfCommand());
+        registerCommand("serbledump", new SerbleDumpCommand());
+        registerCommand("achievements", new AchievementsCommand());
+        registerCommand("proxyexecute", new ProxyExecuteCommand());
+        registerCommand("mysqllog", new MySqlLogCommand());
+        registerCommand("ping", new PingCommand());
+    }
+
+    private void registerCommand(String cmd, SerbleCommand executor) {
+        PluginCommand pluginCommand = Objects.requireNonNull(Main.plugin.getCommand(cmd));
+        pluginCommand.setExecutor(this);
+        pluginCommand.setTabCompleter(this);
+
+        commands.put(cmd, executor);
+    }
+
+    private SerbleCommand getExecutor(Command bukkitCommand) {
+        return commands.getOrDefault(bukkitCommand.getName(), null);
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command bukkitCommand, String label, String[] args) {
+        SerbleCommand executor = getExecutor(bukkitCommand);
+        if (executor == null) {
+            sender.sendMessage(Functions.translate("&cCommand not found"));
+            return true;
+        }
+        UnprocessedCommand unprocessedCommand = new UnprocessedCommand(sender, args);
+        unprocessedCommand.withUsage(bukkitCommand.getUsage());
+        unprocessedCommand.withValidSenders(executor.getAllowedSenders());
+
+        if (bukkitCommand.getPermission() != null) {
+            unprocessedCommand.withPermission(bukkitCommand.getPermission());
+        }
+        SlashCommand cmd = unprocessedCommand.process();
+
+        if (!cmd.isAllowed()) {
+            return true;
+        }
+        executor.execute(cmd);
+        return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command bukkitCommand, String label, String[] args) {
+        SerbleCommand executor = getExecutor(bukkitCommand);
+        if (executor == null) {
+            sender.sendMessage(Functions.translate("&cCommand not found"));
+            return new ArrayList<>();
+        }
+        UnprocessedCommand unprocessedCommand = new UnprocessedCommand(sender, args);
+        unprocessedCommand.withUsage(bukkitCommand.getUsage());
+        unprocessedCommand.withValidSenders(executor.getAllowedSenders());
+
+        if (bukkitCommand.getPermission() != null) {
+            unprocessedCommand.withPermission(bukkitCommand.getPermission());
+        }
+        SlashCommand cmd = unprocessedCommand.process();
+
+        if (!cmd.isAllowed()) {
+            return new ArrayList<>();
+        }
+        List<String> tabComplete = executor.tabComplete(cmd).process();
+        if (tabComplete == null) {
+            List<String> usageCompleter = new ArrayList<>();
+
+            String usage = bukkitCommand.getUsage();
+            String[] usageSplit = usage.split(" ");
+
+            if (usageSplit.length > args.length) {
+                String usageArg = usageSplit[args.length];
+                if (usageArg.startsWith("<") || usageArg.startsWith("[")) {
+                    usageCompleter.add(usageArg
+                            .replace("<", "")
+                            .replace(">", "")
+                            .replace("[", "")
+                            .replace("]", ""));
+                }
+            }
+
+            return usageCompleter;
+        }
+
+        // Remove all entries that don't start with the last argument
+        if (args.length > 0) {
+            String lastArg = args[args.length - 1];
+            tabComplete.removeIf(s -> !s.toLowerCase().startsWith(lastArg.toLowerCase()));
+        }
+
+        return tabComplete;
+    }
+}

@@ -25,6 +25,10 @@ public class SlashCommand {
         return executor;
     }
 
+    public Player getPlayerExecutor() {
+        return (Player) executor;
+    }
+
     public SlashCommandArgument[] getArgs() {
         return args;
     }
@@ -55,8 +59,24 @@ public class SlashCommand {
         executor.sendMessage(Functions.translate("&c" + message + ". Usage: " + usage));
     }
 
+    public void sendPermissionError() {
+        sendError("You do not have permission!");
+    }
+
+    public void sendWrongSenderTypeError() {
+        sendError("You cannot do this!");
+    }
+
     public void sendUsage() {
         executor.sendMessage(Functions.translate("&cUsage: " + usage));
+    }
+
+    public void sendError(String message) {
+        executor.sendMessage(Functions.translate("&c" + message));
+    }
+
+    public void send(String message) {
+        executor.sendMessage(Functions.translate(message));
     }
 
     public String combineArgs(int start) {

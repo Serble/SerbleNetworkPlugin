@@ -121,7 +121,7 @@ public class MenuItemManager implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
         if (!Main.hasConfig) {
-            ConfigManager.RequestConfig(e.getPlayer());
+            ConfigManager.requestConfig(e.getPlayer());
             e.setCancelled(true);
             return;
         }

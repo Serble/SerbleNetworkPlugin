@@ -5,27 +5,16 @@ import com.google.common.io.ByteStreams;
 import net.serble.serblenetworkplugin.DebugManager;
 import net.serble.serblenetworkplugin.Main;
 import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.entity.Player;
 
-public class ProxyExecuteCommand implements CommandExecutor {
+public class ProxyExecuteCommand extends SerbleCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        SlashCommand cmd = new UnprocessedCommand(sender, args)
-                .withUsage("/proxyexecute <command>")
-                .withValidSenders(CommandSenderType.Player)
-                .process();
-
-        if (!cmd.isAllowed()) {
-            return true;
-        }
-
-        Player p = (Player) sender;
+    public void execute(SlashCommand cmd) {
+        Player p = cmd.getPlayerExecutor();
         String cmdString = cmd.combineArgs(0);
 
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -35,7 +24,15 @@ public class ProxyExecuteCommand implements CommandExecutor {
 
         p.sendPluginMessage(Main.plugin, "serble:proxyexecute", out.toByteArray());
         DebugManager.getInstance().debug(p, "Executing '" + cmdString + "' on proxy");
-        return true;
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return null;
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return PLAYER_SENDER;
+    }
 }

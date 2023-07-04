@@ -1,22 +1,26 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.Functions;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
+import net.serble.serblenetworkplugin.Schemas.SlashCommand;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 
-public class MySqlLogCommand implements CommandExecutor {
+public class MySqlLogCommand extends SerbleCommand {
     public static boolean enabled = false;
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("serble.mysqllog")) {
-            sender.sendMessage(Functions.translate("&cYou do not have permission!"));
-            return true;
-        }
+    public void execute(SlashCommand cmd) {
         enabled = !enabled;
-        sender.sendMessage(Functions.translate("&aMySQL logging is now " + (enabled ? "enabled" : "disabled")));
-        return true;
+        cmd.send("&aMySQL logging is now " + (enabled ? "enabled" : "disabled"));
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return null;
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return ALL_SENDERS;
+    }
 }

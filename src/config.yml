@@ -66,3 +66,11 @@ attempttopartywarp: true
 
 warpworldmappings:
   gennether: gen
+
+# Worlds where players can /spawn
+allowspawnworlds:
+  - gen
+  - gennether
+
+# Whether the above list is a blacklist instead of whitelist
+allowspawnworldsisblacklist: false

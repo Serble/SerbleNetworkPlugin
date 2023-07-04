@@ -1,21 +1,46 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.serble.serblenetworkplugin.Main;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
+import net.serble.serblenetworkplugin.Schemas.SlashCommand;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.entity.Player;
 
-public class SpawnCmd implements CommandExecutor {
+import java.util.List;
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("You can't do that");
-            return true;
+public class SpawnCmd extends SerbleCommand {
+
+    private boolean canPlayerUseCommand(Player p) {
+        if (p.hasPermission("serble.bypassspawn")) return true;
+
+        List<String> worldsList = Main.plugin.getConfig().getStringList("allowspawnworlds");
+        boolean isBlacklist = Main.plugin.getConfig().getBoolean("allowspawnworldsisblacklist");
+
+        if (isBlacklist) {
+            return !worldsList.contains(p.getWorld().getName());
+        } else {
+            return worldsList.contains(p.getWorld().getName());
         }
-        Player p = (Player) sender;
-        p.teleport(p.getWorld().getSpawnLocation());
-        return true;
     }
 
+    @Override
+    public void execute(SlashCommand cmd) {
+        Player p = cmd.getPlayerExecutor();
+        if (!canPlayerUseCommand(p)) {
+            cmd.sendError("You can't do that here!");
+            return;
+        }
+        p.teleport(p.getWorld().getSpawnLocation());
+    }
+
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return EMPTY_TAB_COMPLETE;
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return PLAYER_SENDER;
+    }
 }

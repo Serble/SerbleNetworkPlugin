@@ -25,6 +25,9 @@ public class UnprocessedCommand {
     }
 
     public UnprocessedCommand withValidSenders(CommandSenderType... validSenders) {
+        if (validSenders == null) {
+            return this;
+        }
         this.validSenders.addAll(Arrays.asList(validSenders));
         return this;
     }

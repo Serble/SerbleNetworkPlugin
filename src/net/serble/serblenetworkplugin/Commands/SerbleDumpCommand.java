@@ -3,15 +3,16 @@ package net.serble.serblenetworkplugin.Commands;
 import com.google.gson.Gson;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
 import net.serble.serblenetworkplugin.Schemas.Party;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompleteEnumResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class SerbleDumpCommand implements CommandExecutor {
+public class SerbleDumpCommand extends SerbleCommand {
 
     private void dump(CommandSender sender, Object dataset) {
         if (dataset instanceof String) {
@@ -27,48 +28,49 @@ public class SerbleDumpCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        SlashCommand cmd = new UnprocessedCommand(sender, args)
-                .withPermission("serble.dump")
-                .withUsage("/serbledump <dataset>")
-                .process();
-
-        if (!cmd.isAllowed()) {
-            return true;
-        }
-
-        String whatToDump = cmd.getArg(0) == null ? null : cmd.getArg(0).getText();
+    public void execute(SlashCommand cmd) {
+        String whatToDump = cmd.getArgIgnoreNull(0).getText();
         if (whatToDump == null) {
             cmd.sendUsage();
-            return true;
+            return;
         }
 
         try {
             switch (whatToDump.toLowerCase()) {
                 default:
                     cmd.sendUsage("Invalid dataset");
-                    return true;
+                    return;
 
                 case "myparty":
-                    if (!(sender instanceof Player)) {
+                    if (cmd.getSenderType() == CommandSenderType.Player) {
                         cmd.sendUsage("Only players can use this command");
-                        return true;
+                        return;
                     }
-                    Player p = (Player) sender;
+                    Player p = cmd.getPlayerExecutor();
                     Party party = Main.partyManager.getParty(p);
                     dump(p, party);
-                    return true;
+                    return;
 
                 case "allparties":
-                    dump(sender, Main.partyManager.getParties());
-                    return true;
+                    dump(cmd.getExecutor(), Main.partyManager.getParties());
+                    //noinspection UnnecessaryReturnStatement
+                    return;
 
             }
         } catch (Exception e) {
-            dump(sender, "&cAn error occurred while dumping the dataset");
+            dump(cmd.getExecutor(), "&cAn error occurred while dumping the dataset");
             e.printStackTrace();
-            return true;
         }
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return new TabCompletionBuilder(cmd.getArgs())
+                .setCase(new TabCompleteEnumResult("myparty", "allparties"));
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return ALL_SENDERS;
+    }
 }

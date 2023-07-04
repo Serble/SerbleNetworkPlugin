@@ -2,13 +2,14 @@ package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.*;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
 import net.serble.serblenetworkplugin.Schemas.Config.StoreItem;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
+import net.serble.serblenetworkplugin.Schemas.SlashCommand;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,45 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class StoreCommand implements CommandExecutor, Listener {
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) return true;
-        Player p = (Player) sender;
-
-        Inventory Store = Bukkit.createInventory(null, 27, ChatColor.BLUE + "Store");
-
-        ArrayList<StoreItem> StoreItems = Main.config.StoreItems;
-
-        for (StoreItem storeItem : StoreItems) {
-            if (!p.hasPermission(storeItem.Permission)) continue;
-
-            Material material = Material.getMaterial(storeItem.Material);
-            String name = storeItem.Name;
-            Integer slot = storeItem.Slot;
-            Integer price = storeItem.Cost;
-
-            assert material != null;
-            ItemStack stack = new ItemStack(material, 1);
-            ItemMeta meta = stack.getItemMeta();
-
-            List<String> lore = new ArrayList<>();
-            lore.add("Price: " + price);
-            assert meta != null;
-            meta.setLore(lore);
-
-            meta.setDisplayName(Functions.translate(name));
-            stack.setItemMeta(meta);
-
-            Store.setItem(slot, stack);
-        }
-
-        p.openInventory(Store);
-        AchievementsManager.GrantAchievementProgress(p, Achievement.GO_SHOPPING);
-
-        return false;
-    }
+public class StoreCommand extends SerbleCommand implements Listener {
 
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
@@ -97,4 +60,47 @@ public class StoreCommand implements CommandExecutor, Listener {
 
     }
 
+    @Override
+    public void execute(SlashCommand cmd) {
+        Player p = cmd.getPlayerExecutor();
+        Inventory Store = Bukkit.createInventory(null, 27, ChatColor.BLUE + "Store");
+
+        ArrayList<StoreItem> StoreItems = Main.config.StoreItems;
+
+        for (StoreItem storeItem : StoreItems) {
+            if (!p.hasPermission(storeItem.Permission)) continue;
+
+            Material material = Material.getMaterial(storeItem.Material);
+            String name = storeItem.Name;
+            Integer slot = storeItem.Slot;
+            Integer price = storeItem.Cost;
+
+            assert material != null;
+            ItemStack stack = new ItemStack(material, 1);
+            ItemMeta meta = stack.getItemMeta();
+
+            List<String> lore = new ArrayList<>();
+            lore.add("Price: " + price);
+            assert meta != null;
+            meta.setLore(lore);
+
+            meta.setDisplayName(Functions.translate(name));
+            stack.setItemMeta(meta);
+
+            Store.setItem(slot, stack);
+        }
+
+        p.openInventory(Store);
+        AchievementsManager.GrantAchievementProgress(p, Achievement.GO_SHOPPING);
+    }
+
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return null;
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return PLAYER_SENDER;
+    }
 }

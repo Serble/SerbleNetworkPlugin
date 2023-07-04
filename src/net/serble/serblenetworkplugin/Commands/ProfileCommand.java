@@ -1,77 +1,67 @@
 package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.*;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
+import net.serble.serblenetworkplugin.Schemas.SlashCommand;
+import net.serble.serblenetworkplugin.Schemas.SlashCommandArgument;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompleteEnumResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompleteProfilesResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-public class ProfileCommand implements CommandExecutor, TabCompleter {
+public class ProfileCommand extends SerbleCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("You cannot do this!");
-            return true;
-        }
+    public void execute(SlashCommand cmd) {
+        Player p = cmd.getPlayerExecutor();
 
-        Player p = (Player) sender;
-
-        if (!p.hasPermission("serble.profiles")) {
-            sender.sendMessage(Functions.translate("&cYou do not have permission!"));
-            return true;
-        }
-
-        if (args.length == 0) {
+        SlashCommandArgument firstArg = cmd.getArgIgnoreNull(0);
+        if (cmd.getArgs().length == 0) {
             // Display current profile
             UUID profile = PlayerUuidCacheHandler.getInstance().getPlayerUuid(p.getUniqueId());
             String profileName = Main.sqlData.getGameProfileName(profile);
             if (profileName == null) profileName = "default";
 
-            p.sendMessage(Functions.translate("&aActive Profile: &7" + profileName));
-            p.sendMessage(Functions.translate("&aYour profiles:"));
+            cmd.send("&aActive Profile: &7" + profileName);
+            cmd.send("&aYour profiles:");
             for (String userPfName : PlayerUuidCacheHandler.getInstance().getProfileList(p.getUniqueId())) {
-                p.sendMessage(Functions.translate("&7- " + userPfName));
+                cmd.send("&7- " + userPfName);
             }
-            return true;
+            return;
         }
 
-        if (args[0].equalsIgnoreCase("add")) {
-            if (args.length != 2) {
-                p.sendMessage(Functions.translate("&cUsage: /profile add <profile>"));
-                return true;
-            }
-
+        if (firstArg.equalsIgnoreCase("add")) {
             if (PlayerUuidCacheHandler.getInstance().getProfileList(p.getUniqueId()).size() >= 50) {
-                p.sendMessage(Functions.translate("&cYou cannot have more than 50 profiles!"));
-                return true;
+                cmd.sendError("You cannot have more than 50 profiles!");
+                return;
             }
 
-            String profileName = args[1];
+            String profileName = cmd.getArgIgnoreNull(1).getText();
+            if (profileName == null) {
+                cmd.sendUsage();
+                return;
+            }
 
             Main.sqlData.createProfile(p.getUniqueId(), UUID.randomUUID(), profileName);
             PlayerUuidCacheHandler.getInstance().invalidateProfileList(p.getUniqueId());
-            p.sendMessage(Functions.translate("&aProfile &7" + profileName + "&a added!"));
-            return true;
+            cmd.send("&aProfile &7" + profileName + "&a added!");
+            return;
         }
 
-        if (args[0].equalsIgnoreCase("set")) {
-            if (args.length != 2) {
-                p.sendMessage(Functions.translate("&cUsage: /profile set <profile>"));
-                return true;
+        if (firstArg.equalsIgnoreCase("set")) {
+            String profileName = cmd.getArgIgnoreNull(1).getText();
+            if (profileName == null) {
+                cmd.sendUsage();
+                return;
             }
-
-            String profileName = args[1];
 
             UUID profile = Main.sqlData.getProfileIdFromName(p.getUniqueId(), profileName);
             if (profile == null && !profileName.equalsIgnoreCase("default")) {
-                p.sendMessage(Functions.translate("&cProfile not found!"));
-                return true;
+                cmd.sendError("Profile not found!");
+                return;
             } else if (profileName.equalsIgnoreCase("default")) {
                 profile = p.getUniqueId();
             }
@@ -85,33 +75,18 @@ public class ProfileCommand implements CommandExecutor, TabCompleter {
             p.sendMessage(Functions.translate("&aProfile set to &7" + profileName + "&a!"));
             Main.worldGroupInventoryManager.loadPlayerInventory(p);
             ProfilePermissionsManager.loadPermissions(p);
-            return true;
         }
-        return false;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        List<String> results = new ArrayList<>();
-
-        if (!(sender instanceof Player)) return results;
-        if (!sender.hasPermission("serble.profiles")) return results;
-        Player p = (Player) sender;
-
-        if (args.length == 1) {
-            results.add("add");
-            results.add("set");
-            return results;
-        }
-
-        if (args.length == 2 && args[0].equalsIgnoreCase("set")) {
-            for (String profile : PlayerUuidCacheHandler.getInstance().getProfileList(p.getUniqueId())) {
-                if (!profile.toLowerCase().startsWith(args[1].toLowerCase())) continue;
-                results.add(profile);
-            }
-        }
-
-        return results;
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return new TabCompletionBuilder(cmd.getArgs())
+                .setCase(new TabCompleteEnumResult("add", "set"))
+                .setCase(new TabCompleteProfilesResult(cmd.getPlayerExecutor()), "set");
     }
 
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return PLAYER_SENDER;
+    }
 }

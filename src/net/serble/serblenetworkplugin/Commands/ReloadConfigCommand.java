@@ -1,36 +1,34 @@
 package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.ConfigManager;
-import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
+import net.serble.serblenetworkplugin.Schemas.SlashCommand;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 
-public class ReloadConfigCommand implements CommandExecutor {
+public class ReloadConfigCommand extends SerbleCommand {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("serble.admin")) {
-            sender.sendMessage(Functions.translate("&4You do not have permission!"));
-            return true;
-        }
-
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("Sorry but we need a player to request the config!");
-            return true;
-        }
-
-        Player p = (Player) sender;
-
-        ConfigManager.RequestConfig(p);
+    public void execute(SlashCommand cmd) {
         Main.plugin.reloadConfig();
+        cmd.send("&aLocal config reloaded!");
 
-        p.sendMessage("Config rerequested from bungee!");
-        p.sendMessage("Local config reloaded!");
-
-        return true;
+        if (cmd.getSenderType() == CommandSenderType.Player) {
+            ConfigManager.requestConfig(cmd.getPlayerExecutor(), true);
+            cmd.send("&aGlobal config requested!");
+            return;
+        }
+        cmd.send("&cYou are not a player, so we cannot request the global config!");
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return null;
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return ALL_SENDERS;
+    }
 }

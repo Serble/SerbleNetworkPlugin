@@ -1,20 +1,19 @@
 package net.serble.serblenetworkplugin.Commands;
 
-import net.serble.serblenetworkplugin.GameProfileUtils;
 import net.serble.serblenetworkplugin.ExperienceManager;
 import net.serble.serblenetworkplugin.Functions;
+import net.serble.serblenetworkplugin.GameProfileUtils;
 import net.serble.serblenetworkplugin.MenuItemManager;
+import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
+import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
 import net.serble.serblenetworkplugin.Schemas.SlashCommand;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletePlayerResult;
+import net.serble.serblenetworkplugin.Schemas.TabComplete.TabCompletionBuilder;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class SystemGiveXp implements CommandExecutor {
+public class SystemGiveXp extends SerbleCommand {
 
     public static void giveXp(Player p, int amount, String reason) {
         ExperienceManager.addSerbleXp(GameProfileUtils.getPlayerUuid(p), amount);
@@ -28,36 +27,35 @@ public class SystemGiveXp implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        SlashCommand cmd = new UnprocessedCommand(sender, args)
-                .withPermission("serble.sysgivexp")
-                .withUsage("&cUsage: /sysgivexp <PLAYER> <AMOUNT> <REASON>")
-                .process();
-
-        if (!cmd.isAllowed()) {
-            return true;
-        }
-
+    public void execute(SlashCommand cmd) {
         Integer amount = cmd.getArg(1) == null ? null : cmd.getArg(1).getInteger();
         if (amount == null) {
             cmd.sendUsage("Invalid amount");
-            return true;
+            return;
         }
 
         List<Player> players = cmd.getArg(0) == null ? null : cmd.getArg(0).getPlayerList();
         if (players == null) {
             cmd.sendUsage("Invalid player");
-            return true;
+            return;
         }
 
         String reason = cmd.combineArgs(2);
         for (Player p : players) giveXp(p, amount, reason);
 
-        if (sender instanceof Player) {
-            sender.sendMessage(Functions.translate("&aGave " + args[0] + " " + amount + " XP"));
+        if (cmd.getSenderType() == CommandSenderType.Player) {
+            cmd.send("&aGave " + cmd.getArg(0).getText() + " " + amount + " XP");
         }
-
-        return true;
     }
 
+    @Override
+    public TabCompletionBuilder tabComplete(SlashCommand cmd) {
+        return new TabCompletionBuilder(cmd.getArgs())
+                .setCase(new TabCompletePlayerResult());
+    }
+
+    @Override
+    public CommandSenderType[] getAllowedSenders() {
+        return ALL_SENDERS;
+    }
 }
