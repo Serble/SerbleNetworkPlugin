@@ -10,11 +10,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
-import java.util.PriorityQueue;
+import java.util.LinkedList;
 import java.util.Queue;
 
 public class ConfigManager implements PluginMessageListener {
-    private static Queue<Runnable> queuedTasks = new PriorityQueue<>();
+    private static Queue<Runnable> queuedTasks = new LinkedList<>();
     private static boolean configRequested = false;
 
     public static void requestConfig(Player p) {

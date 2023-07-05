@@ -2,10 +2,11 @@ package net.serble.serblenetworkplugin;
 
 import com.google.gson.Gson;
 import net.serble.serblenetworkplugin.API.*;
-import net.serble.serblenetworkplugin.Commands.AchievementsCommand;
+import net.serble.serblenetworkplugin.Cache.CacheInvalidationManager;
 import net.serble.serblenetworkplugin.Commands.CommandHandler;
-import net.serble.serblenetworkplugin.Commands.MenuCommand;
-import net.serble.serblenetworkplugin.Commands.StoreCommand;
+import net.serble.serblenetworkplugin.Commands.Executors.AchievementsCommand;
+import net.serble.serblenetworkplugin.Commands.Executors.MenuCommand;
+import net.serble.serblenetworkplugin.Commands.Executors.StoreCommand;
 import net.serble.serblenetworkplugin.Schemas.Config.*;
 import net.serble.serblenetworkplugin.mysql.MySQL;
 import net.serble.serblenetworkplugin.mysql.SQLGetter;
@@ -93,7 +94,7 @@ public class Main extends JavaPlugin {
 
         createConfigExample();  // Log the default bungee config
 
-        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Lag(), 100L, 1L); // Start TPS Thing
+        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TpsTracker(), 100L, 1L); // Start TPS Thing
 
         getLogger().info("Serble Network Plugin is now running!");  // Tell everyone it was enabled
 
@@ -133,6 +134,8 @@ public class Main extends JavaPlugin {
             Main.hasConfig = true;
             Main.plugin.getLogger().info("Obtained bungee config!");
         }
+
+        new PapiExpansion().register();  // Register PlaceholderAPI expansion
     }
 
     @Override
@@ -144,6 +147,8 @@ public class Main extends JavaPlugin {
         // Unregister plugin messaging channel
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
         this.getServer().getMessenger().unregisterIncomingPluginChannel(this);
+
+        new PapiExpansion().unregister();  // Unregister PlaceholderAPI expansion
     }
 
     public void createConfigExample() {

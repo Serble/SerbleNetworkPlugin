@@ -1,7 +1,7 @@
 package net.serble.serblenetworkplugin.mysql;
 
 import net.serble.serblenetworkplugin.AchievementsManager;
-import net.serble.serblenetworkplugin.Commands.MySqlLogCommand;
+import net.serble.serblenetworkplugin.Commands.Executors.MySqlLogCommand;
 import net.serble.serblenetworkplugin.Main;
 import net.serble.serblenetworkplugin.Schemas.Achievement;
 import net.serble.serblenetworkplugin.Schemas.PermissionSettings;
@@ -353,7 +353,7 @@ public class SQLGetter {
 
         try {
             if (!existsInAchievements(uuid)) createPlayerAchievements(uuid);
-            ps = Main.plugin.SQL.getConnection().prepareStatement(String.format("UPDATE serble_achievements SET %s=? WHERE UUID=?", achievement.toString()));
+            ps = Main.plugin.SQL.getConnection().prepareStatement(String.format("UPDATE serble_achievements SET %s=? WHERE UUID=?", achievement));
             ps.setInt(1, progress);
             ps.setString(2, uuid.toString());
             ps.executeUpdate();
@@ -368,7 +368,7 @@ public class SQLGetter {
         PreparedStatement ps;
 
         try {
-            ps = Main.plugin.SQL.getConnection().prepareStatement(String.format("SELECT %s FROM serble_achievements WHERE UUID=?", achievement.toString()));
+            ps = Main.plugin.SQL.getConnection().prepareStatement(String.format("SELECT %s FROM serble_achievements WHERE UUID=?", achievement));
             ps.setString(1, uuid.toString());
             ResultSet rs = ps.executeQuery();
             int bal;

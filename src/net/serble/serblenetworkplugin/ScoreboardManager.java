@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin;
 
+import net.serble.serblenetworkplugin.Cache.MoneyCacheManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -104,7 +105,7 @@ public class ScoreboardManager implements Listener {
         exp.setScore(5);
 
         // tps
-        Score tps = obj.getScore(ChatColor.YELLOW + "TPS: " + Math.round(Lag.getTPS()));
+        Score tps = obj.getScore(ChatColor.YELLOW + "TPS: " + Math.round(TpsTracker.getTPS()));
         tps.setScore(4);
 
         // discord

@@ -1,11 +1,10 @@
 package net.serble.serblenetworkplugin.Commands;
 
+import net.serble.serblenetworkplugin.Commands.Executors.*;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
-import net.serble.serblenetworkplugin.Schemas.SerbleCommand;
-import net.serble.serblenetworkplugin.Schemas.SlashCommand;
-import net.serble.serblenetworkplugin.Schemas.UnprocessedCommand;
 import org.bukkit.command.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,24 +16,24 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 
     public void registerCommands() {
         registerCommand("menu", new MenuCommand());
-        registerCommand("adminmode", new AdminMode());
-        registerCommand("spawn", new SpawnCmd());
-        registerCommand("cosmetic", new CosmeticCmd());
-        registerCommand("ranknick", new RankNickCmd());
-        registerCommand("nick", new NickCmd());
-        registerCommand("unnick", new UnnickCmd());
-        registerCommand("build", new BuildCmd());
+        registerCommand("adminmode", new AdminModeCommand());
+        registerCommand("spawn", new SpawnCommand());
+        registerCommand("cosmetic", new CosmeticCommand());
+        registerCommand("ranknick", new RankNickCommand());
+        registerCommand("nick", new NickCommand());
+        registerCommand("unnick", new UnnickCommand());
+        registerCommand("build", new BuildCommand());
         registerCommand("reloadconfig", new ReloadConfigCommand());
         registerCommand("money", new MoneyCommand());
         registerCommand("store", new StoreCommand());
-        registerCommand("sysgivemoney", new SystemGiveMoney());
+        registerCommand("sysgivemoney", new SystemGiveMoneyCommand());
         registerCommand("play", new PlayCommand());
         registerCommand("chatsudo", new ChatSudoCommand());
         registerCommand("serblexp", new SerbleXpCommand());
-        registerCommand("sysgivexp", new SystemGiveXp());
+        registerCommand("sysgivexp", new SystemGiveXpCommand());
         registerCommand("grantachievementprogress", new GrantAchievementProgressCommand());
         registerCommand("profile", new ProfileCommand());
-        registerCommand("profileperms", new ProfilePermissionsCommands());
+        registerCommand("profileperms", new ProfilePermissionsCommand());
         registerCommand("serbledebug", new SerbleDebugCommand());
         registerCommand("setspawnpoint", new SetSpawnPointCommand());
         registerCommand("sysdebug", new SystemDebugCommand());
@@ -61,7 +60,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command bukkitCommand, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command bukkitCommand, @NotNull String label, String[] args) {
         SerbleCommand executor = getExecutor(bukkitCommand);
         if (executor == null) {
             sender.sendMessage(Functions.translate("&cCommand not found"));
@@ -84,7 +83,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command bukkitCommand, String label, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command bukkitCommand, @NotNull String label, String[] args) {
         SerbleCommand executor = getExecutor(bukkitCommand);
         if (executor == null) {
             sender.sendMessage(Functions.translate("&cCommand not found"));

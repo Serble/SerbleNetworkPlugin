@@ -7,8 +7,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.List;
-
 public class Chat implements Listener {
 
     @EventHandler
@@ -53,24 +51,12 @@ public class Chat implements Listener {
         Bukkit.broadcastMessage(String.format(finalMessage, p.getDisplayName(), message));
     }
 
-    private static String getFormat(Player p) {
+    public static String getFormat(Player p) {
         // Get what rank should be displayed
         String rankDisplay = Functions.getPlayerRankDisplay(p);
 
         // Get what gamemode should be displayed
-        List<String> worlds = Main.plugin.getConfig().getStringList("worlds");
-        List<String> worldNames = Main.plugin.getConfig().getStringList("worldnames");
-
-        String worldDisplay = Main.plugin.getConfig().getString("unknownworld");
-        if (worldDisplay == null) {
-            worldDisplay = "Unknown World";
-        }
-
-        for (int i = 0; i < worlds.size(); i++) {
-            if (p.getWorld().getName().equals(worlds.get(i))) {
-                worldDisplay = worldNames.get(i);
-            }
-        }
+        String worldDisplay = PlayerGameModeLocator.getGameMode(p);
 
         String format = Main.config.ChatFormat;
         format = format.replaceAll("\\{world}", worldDisplay);
