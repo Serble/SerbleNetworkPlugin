@@ -5,6 +5,8 @@ import net.serble.serblenetworkplugin.WorldGroupInventoryManager;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
+
 public class InventoryManagementService {
     private final WorldGroupInventoryManager worldGroupInventoryManager;
 
@@ -13,7 +15,7 @@ public class InventoryManagementService {
     }
 
     public void setSpawnPoint(Player p, Location loc) {
-        if (p.getWorld().getUID() != loc.getWorld().getUID()) throw new IllegalArgumentException("Player and location must be in the same world!");
+        if (p.getWorld().getUID() != Objects.requireNonNull(loc.getWorld()).getUID()) throw new IllegalArgumentException("Player and location must be in the same world!");
         String worldGroup = worldGroupInventoryManager.getPlayerWorldGroup(p);
         worldGroupInventoryManager.setPlayerCurrentSpawnPoint(GameProfileUtils.getPlayerUuid(p), worldGroup, loc);
     }

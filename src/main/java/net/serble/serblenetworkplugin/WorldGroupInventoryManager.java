@@ -120,7 +120,7 @@ public class WorldGroupInventoryManager implements Listener {
         if (spawnLocation == null) {
             return;
         }
-        if (spawnLocation.getWorld().getUID() != player.getWorld().getUID()) {
+        if (Objects.requireNonNull(spawnLocation.getWorld()).getUID() != player.getWorld().getUID()) {
             DebugManager.getInstance().debug(player, "&6Your respawn location was in a different world, so it was not set.");
             return;
         }

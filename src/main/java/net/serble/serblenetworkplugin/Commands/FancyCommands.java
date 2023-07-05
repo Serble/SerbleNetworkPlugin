@@ -52,7 +52,7 @@ public class FancyCommands {
                 Location senderLocation = getLocationOfCommandSender(sender);
                 if (senderLocation != null) {
                     for (Player player : Main.plugin.getServer().getOnlinePlayers()) {
-                        if (player.getWorld().getUID() != senderLocation.getWorld().getUID()) continue;
+                        if (player.getWorld().getUID() != Objects.requireNonNull(senderLocation.getWorld()).getUID()) continue;
                         double distance = player.getLocation().distanceSquared(senderLocation);
                         if (distance < nearestDistance) {
                             nearestPlayer = player;
