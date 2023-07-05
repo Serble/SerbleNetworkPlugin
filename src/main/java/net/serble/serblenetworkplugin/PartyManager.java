@@ -109,7 +109,7 @@ public class PartyManager implements PluginMessageListener, Listener {
                 Player leader = Main.plugin.getServer().getPlayer(UUID.fromString(partyLeaderId));
                 Player member = Main.plugin.getServer().getPlayer(UUID.fromString(memberId));
                 if (leader == null) {
-                    DebugManager.getInstance().serverDebug("&cLeader of party is not found, failed to warp.");
+                    DebugManager.getInstance().serverDebug("&cLeader of party is not found, failed to warp. Leader: " + partyLeaderId);
                     return;
                 }
                 if (member == null) {
