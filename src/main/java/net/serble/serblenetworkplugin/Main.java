@@ -106,6 +106,8 @@ public class Main extends JavaPlugin {
                     ConfigManager.requestConfig(p);
                     didRequestConfig = true;
                 }
+                worldGroupInventoryManager.loadPlayerInventory(p);
+                DebugManager.getInstance().debug(p, "Loaded your inventory!");
                 if (p.hasPermission("serble.staff")) {
                     DebugManager.getInstance().debug(p, "&bReloaded the plugin!");
                 }

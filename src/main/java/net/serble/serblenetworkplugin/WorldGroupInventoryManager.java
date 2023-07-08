@@ -38,8 +38,13 @@ public class WorldGroupInventoryManager implements Listener {
     }
 
     // Returns the players spawnpoint as set in the cache or null if it is null or the player is not in the cache
-    public Location getPlayerCurrentSpawnPoint(UUID player, String worldGroup) {
-        StoredInventory storedInventory = getCacheInventory(player, worldGroup);
+    public Location getPlayerCurrentSpawnPoint(Player player, String worldGroup) {
+        if (AdminModeCacheHandler.isAdminMode(player.getUniqueId())) {
+            DebugManager.getInstance().debug(player, "You are in admin mode! Not saving inventory...");
+            return null;
+        }
+
+        StoredInventory storedInventory = getCacheInventory(GameProfileUtils.getPlayerUuid(player), worldGroup);
         if (storedInventory == null) {
             return null;
         }
@@ -47,18 +52,25 @@ public class WorldGroupInventoryManager implements Listener {
     }
 
     // Sets the players spawnpoint in the cache (it will be saved to memory if the player leaves the world or quits)
-    public void setPlayerCurrentSpawnPoint(UUID player, String worldGroup, Location location) {
-        StoredInventory storedInventory = getCacheInventory(player, worldGroup);
+    public void setPlayerCurrentSpawnPoint(Player player, String worldGroup, Location location) {
+        if (AdminModeCacheHandler.isAdminMode(player.getUniqueId())) {
+            DebugManager.getInstance().debug(player, "You are in admin mode! Not saving inventory...");
+            return;
+        }
+
+        UUID uuid = GameProfileUtils.getPlayerUuid(player);
+
+        StoredInventory storedInventory = getCacheInventory(uuid, worldGroup);
         if (storedInventory == null) {
-            loadPlayerInventory(Bukkit.getPlayer(GameProfileUtils.getPlayerFromProfile(player)));
-            storedInventory = getCacheInventory(player, worldGroup);
+            loadPlayerInventory(player);
+            storedInventory = getCacheInventory(uuid, worldGroup);
             if (storedInventory == null) {
-                DebugManager.getInstance().debug(Bukkit.getPlayer(GameProfileUtils.getPlayerFromProfile(player)), "&cFailed to set spawnpoint in cache, cache refusing to load user.");
+                DebugManager.getInstance().debug(player, "&cFailed to set spawnpoint in cache, cache refusing to load user.");
                 return;
             }
         }
         storedInventory.setSpawnLocation(location);
-        cacheInventory(player, worldGroup, storedInventory);
+        cacheInventory(uuid, worldGroup, storedInventory);
     }
 
     public WorldGroupInventoryManager() {
@@ -116,7 +128,7 @@ public class WorldGroupInventoryManager implements Listener {
         if (worldGroup == null) {
             return;
         }
-        Location spawnLocation = getPlayerCurrentSpawnPoint(GameProfileUtils.getPlayerUuid(player.getUniqueId()), worldGroup);
+        Location spawnLocation = getPlayerCurrentSpawnPoint(player, worldGroup);
         if (spawnLocation == null) {
             return;
         }

@@ -6,7 +6,6 @@ import net.serble.serblenetworkplugin.Commands.SlashCommand;
 import net.serble.serblenetworkplugin.Commands.TabComplete.TabCompletePlayerResult;
 import net.serble.serblenetworkplugin.Commands.TabComplete.TabCompleteWorldResult;
 import net.serble.serblenetworkplugin.Commands.TabComplete.TabCompletionBuilder;
-import net.serble.serblenetworkplugin.GameProfileUtils;
 import net.serble.serblenetworkplugin.Main;
 import net.serble.serblenetworkplugin.Schemas.CommandSenderType;
 import org.bukkit.Location;
@@ -53,7 +52,7 @@ public class SetSpawnPointCommand extends SerbleCommand {
                 cmd.sendError("Player " + player.getName() + " is not in a world group!");
                 continue;
             }
-            Main.worldGroupInventoryManager.setPlayerCurrentSpawnPoint(GameProfileUtils.getPlayerUuid(player), worldGroup, location);
+            Main.worldGroupInventoryManager.setPlayerCurrentSpawnPoint(player, worldGroup, location);
             cmd.send("&aSet spawn point for " + player.getName() + " to " + location + " in world group " + worldGroup);
         }
     }
