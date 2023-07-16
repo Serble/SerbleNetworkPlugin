@@ -1,9 +1,12 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
 group = 'net.serble.serblenetworkplugin'
 version = '1.0-SNAPSHOT'
+
+
 
 repositories {
     mavenCentral()
@@ -20,6 +23,24 @@ dependencies {
     compileOnly 'me.clip:placeholderapi:2.11.3'
 
     compileOnly files('libs/NickAPI.jar')
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Serble/SerbleNetworkPlugin")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
 }
 
 test {
