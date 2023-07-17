@@ -6,13 +6,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 
 public class SVTPManager implements PluginMessageListener {
 
-    public void onPluginMessageReceived(final String channel, final Player player, final byte[] bytes) {
+    public void onPluginMessageReceived(final String channel, final @NotNull Player player, final byte[] bytes) {
         if (!channel.equalsIgnoreCase("calcilator:svtp")) {
             return;
         }
@@ -22,16 +23,19 @@ public class SVTPManager implements PluginMessageListener {
             final String playerName = in.readUTF();
             final String worldName = in.readUTF();
             Player p = Bukkit.getPlayer(playerName);
-            if (p == null) {
-                Bukkit.getLogger().severe("Attempted to send a player that doesn't exist! (" + playerName + ")");
+            if (worldName.equals("null")) {
                 return;
             }
-            if (worldName.equals("null")) {
+            if (p == null) {
+                Bukkit.getLogger().severe("Attempted to send a player that doesn't exist! (" + playerName + ")");
                 return;
             }
             World w = Bukkit.getWorld(worldName);
             if (w == null) {
                 p.sendMessage(Functions.translate("&cAttempted to send you to a world that doesn't exist!"));
+                return;
+            }
+            if (p.getWorld().getName().equals(worldName)) {
                 return;
             }
             p.teleport(w.getSpawnLocation());

@@ -28,7 +28,7 @@ public class MenuItemManager implements Listener {
 
         if (!Main.hasConfig) {
             ConfigManager.runTaskAfterConfig(() -> {
-                if (!shouldNotGetItems(p)) return;
+                if (shouldNotGetItems(p)) return;
                 GiveMenuItems(p);
             });
             return;
