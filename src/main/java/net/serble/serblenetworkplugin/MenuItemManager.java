@@ -15,7 +15,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,16 +23,14 @@ import java.util.Objects;
 public class MenuItemManager implements Listener {
 
     public static void GiveMenuItems(Player p) {
+        if (p == null) return;
+        if (!p.isOnline()) return;
 
         if (!Main.hasConfig) {
-            new BukkitRunnable() {
-
-                @Override
-                public void run() {
-                    GiveMenuItems(p);
-                }
-
-            }.runTaskLater(Main.plugin, 90L);
+            ConfigManager.runTaskAfterConfig(() -> {
+                if (!shouldNotGetItems(p)) return;
+                GiveMenuItems(p);
+            });
             return;
         }
 
