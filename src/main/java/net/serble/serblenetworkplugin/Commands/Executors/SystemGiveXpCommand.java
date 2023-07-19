@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin.Commands.Executors;
 
+import net.serble.serblenetworkplugin.Cache.AdminModeCacheHandler;
 import net.serble.serblenetworkplugin.Commands.SerbleCommand;
 import net.serble.serblenetworkplugin.Commands.SlashCommand;
 import net.serble.serblenetworkplugin.Commands.TabComplete.TabCompletePlayerResult;
@@ -16,7 +17,9 @@ import java.util.List;
 public class SystemGiveXpCommand extends SerbleCommand {
 
     public static void giveXp(Player p, int amount, String reason) {
-        ExperienceManager.addSerbleXp(GameProfileUtils.getPlayerUuid(p), amount);
+        if (!AdminModeCacheHandler.isAdminMode(p.getUniqueId())) {
+            ExperienceManager.addSerbleXp(GameProfileUtils.getPlayerUuid(p), amount);
+        }
 
         // Message in chat
         p.sendMessage(Functions.translate("&9+ " + amount + " XP (" + reason + ")"));

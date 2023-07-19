@@ -3,6 +3,7 @@ package net.serble.serblenetworkplugin.Commands.Executors;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.serble.serblenetworkplugin.Cache.AdminModeCacheHandler;
 import net.serble.serblenetworkplugin.Cache.MoneyCacheManager;
 import net.serble.serblenetworkplugin.Commands.SerbleCommand;
 import net.serble.serblenetworkplugin.Commands.SlashCommand;
@@ -20,7 +21,9 @@ import java.util.List;
 public class SystemGiveMoneyCommand extends SerbleCommand {
 
     public static void giveMoney(Player p, int amount, String reason) {
-        MoneyCacheManager.addMoney(GameProfileUtils.getPlayerUuid(p), amount);
+        if (!AdminModeCacheHandler.isAdminMode(p.getUniqueId())) {
+            MoneyCacheManager.addMoney(GameProfileUtils.getPlayerUuid(p), amount);
+        }
 
         // Message in chat
         p.sendMessage(Functions.translate("&6+ " + amount + " coins (" + reason + ")"));
