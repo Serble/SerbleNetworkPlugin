@@ -16,13 +16,19 @@ import java.util.Queue;
 public class ConfigManager implements PluginMessageListener {
     private static Queue<Runnable> queuedTasks = new LinkedList<>();
     private static boolean configRequested = false;
+    private static long lastRequest = 0;
 
     public static void requestConfig(Player p) {
         requestConfig(p, false);
     }
 
     public static void requestConfig(Player p, boolean ignoreCache) {
-        if (configRequested && !ignoreCache) return;
+        if (configRequested && lastRequest + 1000*20 > System.currentTimeMillis()) {  // 20 second timeout
+            return;
+        }
+        if (Main.hasConfig && !ignoreCache) {
+            return;
+        }
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("config");
         out.writeUTF(p.getName());
@@ -30,6 +36,7 @@ public class ConfigManager implements PluginMessageListener {
         Main.plugin.getLogger().info("Sending request for config...");
         p.sendPluginMessage(Main.plugin, "serble:serble", out.toByteArray());
         configRequested = true;
+        lastRequest = System.currentTimeMillis();
     }
 
     @Override

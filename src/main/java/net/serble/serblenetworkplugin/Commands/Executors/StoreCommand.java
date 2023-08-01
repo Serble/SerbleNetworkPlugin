@@ -24,7 +24,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class StoreCommand extends SerbleCommand implements Listener {
 
@@ -38,17 +37,16 @@ public class StoreCommand extends SerbleCommand implements Listener {
         p.closeInventory();
         p.updateInventory();
 
-        ArrayList<StoreItem> StoreItems = Main.config.StoreItems;
+        ArrayList<StoreItem> storeItems = Main.config.StoreItems;
 
-        for (StoreItem item : StoreItems) {
+        for (StoreItem item : storeItems) {
             if (e.getSlot() != item.Slot) continue;
-            if (!Functions.translate(item.Name).equals(Functions.translate(Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName()))) continue;
             // found the item
             // now run the command if they have the money
             int balance = MoneyCacheManager.getMoney(GameProfileUtils.getPlayerUuid(p));
             if (balance < item.Cost) {
                 // they don't have enough
-                p.sendMessage(Functions.translate("&4You don't have enough money! Balance: " + balance));
+                p.sendMessage(Functions.translate("&cYou don't have enough money! Balance: " + balance));
                 return;
             }
 
@@ -67,7 +65,7 @@ public class StoreCommand extends SerbleCommand implements Listener {
     @Override
     public void execute(SlashCommand cmd) {
         Player p = cmd.getPlayerExecutor();
-        Inventory Store = Bukkit.createInventory(null, 27, ChatColor.BLUE + "Store");
+        Inventory store = Bukkit.createInventory(null, 27, ChatColor.BLUE + "Store");
 
         ArrayList<StoreItem> StoreItems = Main.config.StoreItems;
         int balance = MoneyCacheManager.getMoney(GameProfileUtils.getPlayerUuid(p));
@@ -97,10 +95,10 @@ public class StoreCommand extends SerbleCommand implements Listener {
             meta.setDisplayName(Functions.translate(name));
             stack.setItemMeta(meta);
 
-            Store.setItem(slot, stack);
+            store.setItem(slot, stack);
         }
 
-        p.openInventory(Store);
+        p.openInventory(store);
         AchievementsManager.GrantAchievementProgress(p, Achievement.GO_SHOPPING);
     }
 

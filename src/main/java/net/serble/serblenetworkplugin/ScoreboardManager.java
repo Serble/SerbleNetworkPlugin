@@ -39,7 +39,7 @@ public class ScoreboardManager implements Listener {
                     lb.setIDlb(taskID);
                 if (count == 2)
                     count = 0;
-                switch(count) {
+                switch (count) {
                     case 0:
                         break;
                     case 1:
@@ -64,6 +64,9 @@ public class ScoreboardManager implements Listener {
         }, 0, 20);
     }
 
+    // Yes I hardcoded this, I don't care
+    // I made this ages ago ok
+    // I don't want to change it
     public void createScoreboard(Player player) {
         // scoreboard
         org.bukkit.scoreboard.ScoreboardManager manager = Bukkit.getScoreboardManager();

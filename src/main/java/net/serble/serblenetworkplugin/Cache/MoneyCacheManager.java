@@ -32,11 +32,7 @@ public class MoneyCacheManager {
     }
 
     public static void addMoney(UUID player, int money, boolean async) {
-        if (moneyCache.containsKey(player)) {
-            moneyCache.replace(player, moneyCache.get(player) + money);
-        } else {
-            moneyCache.put(player, money);
-        }
+        moneyCache.put(player, getMoney(player) + money);
         Functions.runAsync(() -> Main.sqlData.addMoney(player, money), true);
     }
 
