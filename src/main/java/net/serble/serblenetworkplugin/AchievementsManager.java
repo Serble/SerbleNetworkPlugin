@@ -37,6 +37,7 @@ public class AchievementsManager {
         put(Achievement.OBSIDIAN_HEART, 1);
         put(Achievement.PRISON_ESCAPIST, 1);
         put(Achievement.PARKOUR_DEDICATION, 100);
+        put(Achievement.WELCOME_TO_HELL, 1);
     }};
 
     // Achievement Proper Names
@@ -62,6 +63,7 @@ public class AchievementsManager {
         put(Achievement.OBSIDIAN_HEART, "Obsidian Heart");
         put(Achievement.PRISON_ESCAPIST, "Prison Escapist");
         put(Achievement.PARKOUR_DEDICATION, "Parkour Dedication");
+        put(Achievement.WELCOME_TO_HELL, "Welcome To Hell");
     }};
 
     // Achievement Descriptions
@@ -87,6 +89,7 @@ public class AchievementsManager {
         put(Achievement.OBSIDIAN_HEART, "Complete the parkour map Obsidian");
         put(Achievement.PRISON_ESCAPIST, "Complete the parkour map Prison");
         put(Achievement.PARKOUR_DEDICATION, "Die 100 times in parkour");
+        put(Achievement.WELCOME_TO_HELL, "Enter the Old Gen Nether");
     }};
 
 
@@ -177,6 +180,10 @@ public class AchievementsManager {
         put(Achievement.PARKOUR_DEDICATION, new ArrayList<>() {{
             add("sysgivemoney {player} 50 Achievement");
             add("sysgivexp {player} 100 Achievement");
+        }});
+        put(Achievement.WELCOME_TO_HELL, new ArrayList<>() {{
+            add("sysgivemoney {player} 100 Achievement");
+            add("sysgivexp {player} 200 Achievement");
         }});
     }};
 

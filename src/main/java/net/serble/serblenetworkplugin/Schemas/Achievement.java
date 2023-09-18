@@ -22,6 +22,7 @@ public enum Achievement {
     NEO,
     OBSIDIAN_HEART,
     PRISON_ESCAPIST,
-    PARKOUR_DEDICATION
+    PARKOUR_DEDICATION,
+    WELCOME_TO_HELL
 
 }
