@@ -1,5 +1,6 @@
 package net.serble.serblenetworkplugin;
 
+import net.serble.serblenetworkplugin.Cache.CacheInvalidationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,9 +13,13 @@ import static net.serble.serblenetworkplugin.Functions.getPlayerRankDisplay;
 
 public class JoinLeave implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+
+        // Make sure that we have no invalid cache
+        CacheInvalidationManager.invalidateCacheForPlayer(p.getUniqueId());
+        DebugManager.getInstance().debug(p, "Welcome! Your cache has been invalidated.");
 
         // update nickname
         if (Main.sqlData.existsInNicks(GameProfileUtils.getPlayerUuid(p))) {
