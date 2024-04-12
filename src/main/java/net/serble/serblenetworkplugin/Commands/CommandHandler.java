@@ -1,6 +1,7 @@
 package net.serble.serblenetworkplugin.Commands;
 
 import net.serble.serblenetworkplugin.Commands.Executors.*;
+import net.serble.serblenetworkplugin.Commands.TabComplete.TabCompletionBuilder;
 import net.serble.serblenetworkplugin.Functions;
 import net.serble.serblenetworkplugin.Main;
 import org.bukkit.command.*;
@@ -101,7 +102,13 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
         if (!cmd.isAllowed()) {
             return new ArrayList<>();
         }
-        List<String> tabComplete = executor.tabComplete(cmd).process();
+        TabCompletionBuilder tabBuilder = executor.tabComplete(cmd);
+
+        if (tabBuilder == null) {  // If the tab completer is null, return an empty list
+            return new ArrayList<>();
+        }
+
+        List<String> tabComplete = tabBuilder.process();
         if (tabComplete == null) {
             List<String> usageCompleter = new ArrayList<>();
 
